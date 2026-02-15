@@ -91,12 +91,12 @@ export default function ChatWindow({ householdId, userId }: ChatWindowProps) {
       <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4">
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center">
-            <h2 className="font-display text-3xl font-bold mb-2">
-              <span className="bg-gradient-to-r from-pink via-coral to-gold bg-clip-text text-transparent">
-                MyVansh.AI
-              </span>
+            <h2 className="font-display text-3xl font-extrabold mb-2">
+              <span className="brand-aura">Aura</span>
+              <span className="gradient-text font-extrabold">Mi</span>
+              <span className="gradient-text font-medium">.AI</span>
             </h2>
-            <p className="text-text-500 max-w-md">
+            <p className="text-text-500 max-w-md font-body">
               Ask me about your family history, add new members, or share
               stories. Try: &quot;Who are the oldest members of our family?&quot;
             </p>
@@ -110,11 +110,11 @@ export default function ChatWindow({ householdId, userId }: ChatWindowProps) {
         {isLoading && (
           <div className="flex items-center gap-2 text-text-400 px-4 py-2">
             <div className="flex gap-1">
-              <span className="w-2 h-2 bg-coral rounded-full animate-bounce" />
-              <span className="w-2 h-2 bg-coral rounded-full animate-bounce [animation-delay:0.1s]" />
-              <span className="w-2 h-2 bg-coral rounded-full animate-bounce [animation-delay:0.2s]" />
+              <span className="w-2 h-2 bg-pink rounded-full animate-bounce" />
+              <span className="w-2 h-2 bg-pink rounded-full animate-bounce [animation-delay:0.1s]" />
+              <span className="w-2 h-2 bg-pink rounded-full animate-bounce [animation-delay:0.2s]" />
             </div>
-            <span className="text-sm">Searching family records...</span>
+            <span className="text-sm font-body">Searching family records...</span>
           </div>
         )}
 
@@ -124,7 +124,7 @@ export default function ChatWindow({ householdId, userId }: ChatWindowProps) {
       {/* Input */}
       <form
         onSubmit={handleSubmit}
-        className="border-t border-text-300/20 bg-white px-4 py-3"
+        className="border-t border-[rgba(0,245,255,0.08)] bg-card px-4 py-3"
       >
         <div className="flex items-end gap-3 max-w-3xl mx-auto">
           <textarea
@@ -134,13 +134,13 @@ export default function ChatWindow({ householdId, userId }: ChatWindowProps) {
             onKeyDown={handleKeyDown}
             placeholder="Ask about your family history..."
             rows={1}
-            className="flex-1 resize-none rounded-xl border border-text-300/30 bg-bg px-4 py-3 text-text-800 placeholder:text-text-400 focus:outline-none focus:ring-2 focus:ring-coral/40 font-body"
+            className="flex-1 resize-none rounded-xl border border-[rgba(0,245,255,0.1)] bg-bg px-4 py-3 text-text-800 placeholder:text-text-400 focus:outline-none focus:ring-2 focus:ring-pink/30 font-body"
             disabled={isLoading}
           />
           <button
             type="submit"
             disabled={isLoading || !input.trim()}
-            className="px-5 py-3 rounded-xl bg-gradient-to-r from-pink via-coral to-gold text-white font-body font-semibold shadow-sm hover:shadow-md transition-shadow disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-5 py-3 rounded-xl bg-gradient-to-r from-pink via-coral to-gold text-white font-body font-bold shadow-glow hover:shadow-hover transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
           >
             Send
           </button>

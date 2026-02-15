@@ -1,66 +1,73 @@
 import Link from 'next/link';
 
+/* ── Blob Logo Component ── */
+function BlobLogo({ size = 'hero' }: { size?: 'hero' | 'sm' | 'xs' }) {
+  const sizeClass = size === 'hero' ? 'blob-hero' : size === 'sm' ? 'blob-sm' : 'blob-xs';
+  return (
+    <div className={`blob-container ${sizeClass}`}>
+      <div className="blob-outer" />
+      <div className="blob-mid" />
+      <div className="blob-inner" />
+      <div className="blob-core" />
+    </div>
+  );
+}
+
+/* ── Wordmark Component ── */
+function Wordmark({ className = '' }: { className?: string }) {
+  return (
+    <span className={`font-display font-extrabold ${className}`}>
+      <span className="brand-aura">Aura</span>
+      <span className="gradient-text font-extrabold">Mi</span>
+      <span className="gradient-text font-medium">.AI</span>
+    </span>
+  );
+}
+
 const features = [
   {
-    title: 'Chat with Your History',
+    title: 'Visual Family Tree',
     description:
-      'Ask questions naturally — "Who was grandpa\'s father?" — and get instant answers from your family knowledge base.',
-    icon: (
-      <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
-      </svg>
-    ),
+      'Build an interactive family tree across generations. Pan, zoom, filter by location or living status.',
+    emoji: '\uD83C\uDF33',
   },
   {
-    title: 'Build Your Family Tree',
+    title: 'AI Family Historian',
     description:
-      'Add ancestors, relationships, and life details through simple conversation. The AI organizes it all for you.',
-    icon: (
-      <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
-      </svg>
-    ),
+      'Ask questions naturally and get instant answers from your family knowledge base, powered by AI.',
+    emoji: '\uD83E\uDD16',
   },
   {
-    title: 'Preserve Photos & Documents',
+    title: 'Photo & Document Vault',
     description:
-      'Upload old photos, certificates, and letters. Tag family members and let the AI make them searchable.',
-    icon: (
-      <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0 0 22.5 18.75V5.25A2.25 2.25 0 0 0 20.25 3H3.75A2.25 2.25 0 0 0 1.5 5.25v13.5A2.25 2.25 0 0 0 3.75 21Z" />
-      </svg>
-    ),
+      'Upload old photos, certificates, and letters. Tag family members and make everything searchable.',
+    emoji: '\uD83D\uDDC2\uFE0F',
   },
   {
-    title: 'Record Family Stories',
+    title: 'Story Preservation',
     description:
-      'Capture oral histories, migration tales, and family legends. Share them across generations before they\'re forgotten.',
-    icon: (
-      <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
-      </svg>
-    ),
+      'Capture oral histories, migration tales, and family legends before they\'re forgotten forever.',
+    emoji: '\uD83D\uDCD6',
   },
   {
-    title: 'Connect Family Branches',
+    title: 'Voice-First on iPhone',
     description:
-      'Invite relatives to create their own household accounts. Family trees auto-link at shared ancestors.',
-    icon: (
-      <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
-      </svg>
-    ),
+      'Speak your family stories hands-free. Perfect for elders who prefer talking over typing.',
+    emoji: '\uD83C\uDF99\uFE0F',
   },
   {
-    title: 'AI-Powered Search',
+    title: 'Link Family Branches',
     description:
-      'Semantic search understands meaning, not just keywords. Find connections across people, events, and stories instantly.',
-    icon: (
-      <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-      </svg>
-    ),
+      'Invite relatives to create their own household. Family trees auto-link at shared ancestors.',
+    emoji: '\uD83D\uDD17',
   },
+];
+
+const householdFeatures = [
+  { emoji: '\uD83C\uDFE0', title: '1 Household Owner', description: 'Full control over your family data' },
+  { emoji: '\uD83D\uDC68\u200D\uD83D\uDC69\u200D\uD83D\uDC67\u200D\uD83D\uDC66', title: '+4 Members Included', description: 'Invite your immediate family' },
+  { emoji: '\uD83C\uDF33', title: 'Unlimited Family Chart', description: 'As many ancestors as you want' },
+  { emoji: '\uD83D\uDD17', title: 'Connect Households', description: 'Link branches across families' },
 ];
 
 const steps = [
@@ -72,138 +79,183 @@ const steps = [
   },
   {
     step: '02',
-    title: 'Start a Conversation',
+    title: 'Build Your Tree & Add Memories',
     description:
       'Tell the AI about your family — grandparents, stories, events, photos. It organizes everything into a searchable knowledge base.',
   },
   {
     step: '03',
-    title: 'Discover & Share',
+    title: 'Ask the AI Anything',
     description:
       'Ask questions, explore your tree, and invite other family branches to connect. Your history grows with every conversation.',
   },
 ];
 
-const testimonials = [
-  {
-    quote:
-      'I finally recorded all of my mother\'s stories about growing up in Punjab before Partition. My grandchildren can now ask the AI about their great-grandmother and get real answers.',
-    name: 'Anita S.',
-    role: 'Family Historian',
-  },
-  {
-    quote:
-      'We had boxes of old photos with no labels. Now everything is tagged, searchable, and connected to our family tree. It took an afternoon instead of months.',
-    name: 'Raj M.',
-    role: 'Father of Three',
-  },
-  {
-    quote:
-      'My cousins in India created their own household and linked it to ours. Now we can search across both family branches — it\'s like having one big connected tree.',
-    name: 'Priya K.',
-    role: 'Second Generation',
-  },
+const stats = [
+  { value: '87%', label: 'of families have no written record of their grandparents\' stories' },
+  { value: '3 Gen', label: 'is all it takes for family history to be completely forgotten' },
+  { value: '\u221E', label: 'stories waiting to be preserved by families like yours' },
 ];
+
+const pricingFeatures = {
+  free: [
+    '1 household with up to 5 members',
+    'Unlimited family tree entries',
+    'AI-powered chat & search',
+    'Photo & document storage',
+    'Family stories & oral histories',
+    'Cross-household linking',
+    'Timeline & event tracking',
+  ],
+  heritage: [
+    'Everything in Free',
+    'Priority AI processing',
+    'Advanced export (PDF family book)',
+    'Voice transcription (Whisper)',
+    'Multi-language support',
+    'Dedicated support',
+  ],
+};
 
 export default function Home() {
   return (
     <main className="min-h-screen bg-bg">
       {/* ───────── NAVIGATION ───────── */}
-      <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-text-300/15">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="font-display text-xl font-bold">
-            <span className="bg-gradient-to-r from-pink via-coral to-gold bg-clip-text text-transparent">
-              MyVansh.AI
-            </span>
-          </Link>
+      <nav className="glass fixed top-0 left-0 right-0 z-[1000] h-16">
+        <div className="max-w-6xl mx-auto px-6 h-full flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <BlobLogo size="sm" />
+            <Wordmark className="text-[1.35rem]" />
+          </div>
           <div className="hidden md:flex items-center gap-8 text-sm font-body text-text-600">
             <a href="#features" className="hover:text-text-900 transition-colors">Features</a>
             <a href="#how-it-works" className="hover:text-text-900 transition-colors">How It Works</a>
             <a href="#pricing" className="hover:text-text-900 transition-colors">Pricing</a>
           </div>
-          <div className="flex items-center gap-3">
-            <Link
-              href="/login"
-              className="text-sm font-body font-medium text-text-700 hover:text-text-900 transition-colors"
-            >
-              Sign In
-            </Link>
-            <Link
-              href="/login"
-              className="px-5 py-2 rounded-full bg-gradient-to-r from-pink via-coral to-gold text-white text-sm font-body font-semibold shadow-sm hover:shadow-md transition-shadow"
-            >
-              Get Started
-            </Link>
-          </div>
+          <Link
+            href="/dashboard"
+            className="px-5 py-2 rounded-full bg-gradient-to-r from-pink via-coral to-gold text-white text-sm font-body font-bold shadow-glow hover:shadow-hover transition-all hover:-translate-y-0.5"
+          >
+            Launch Dashboard &rarr;
+          </Link>
         </div>
       </nav>
 
       {/* ───────── HERO ───────── */}
-      <section className="relative overflow-hidden">
-        {/* Background decoration */}
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-20 left-1/4 w-96 h-96 bg-pink/10 rounded-full blur-3xl" />
-          <div className="absolute top-40 right-1/4 w-80 h-80 bg-gold/10 rounded-full blur-3xl" />
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
+        {/* Glow orbs */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-[rgba(0,245,255,0.07)] blur-[100px] animate-glow-drift-1" />
+          <div className="absolute top-1/3 right-1/4 w-80 h-80 rounded-full bg-[rgba(0,245,255,0.05)] blur-[100px] animate-glow-drift-2" />
+          <div className="absolute bottom-1/4 left-1/3 w-72 h-72 rounded-full bg-[rgba(191,255,0,0.05)] blur-[100px] animate-glow-drift-3" />
         </div>
 
-        <div className="relative max-w-6xl mx-auto px-6 pt-24 pb-20 md:pt-32 md:pb-28">
-          <div className="max-w-3xl mx-auto text-center">
-            <p className="text-coral font-body font-semibold text-sm tracking-wide uppercase mb-4">
-              AI-Powered Family History
-            </p>
-            <h1 className="font-display text-5xl md:text-7xl font-bold leading-tight mb-6">
-              Every Family Has a{' '}
-              <span className="bg-gradient-to-r from-pink via-coral to-gold bg-clip-text text-transparent">
-                Story Worth Keeping
-              </span>
-            </h1>
-            <p className="font-body text-text-600 text-lg md:text-xl leading-relaxed mb-10 max-w-2xl mx-auto">
-              Chat naturally with an AI that knows your family. Add ancestors, record stories,
-              upload photos, and explore generations of history — all through conversation.
-            </p>
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link
-                href="/login"
-                className="px-8 py-3.5 rounded-full bg-gradient-to-r from-pink via-coral to-gold text-white font-body font-semibold text-lg shadow-md hover:shadow-lg transition-shadow"
-              >
-                Start Your Family Story
-              </Link>
-              <a
-                href="#how-it-works"
-                className="px-8 py-3.5 rounded-full border border-text-300/40 text-text-700 font-body font-medium text-lg hover:bg-white transition-colors"
-              >
-                See How It Works
-              </a>
-            </div>
+        <div className="relative max-w-[800px] mx-auto px-6 text-center">
+          {/* Blob logo */}
+          <div className="flex justify-center mb-8 opacity-0 animate-fade-up" style={{ animationDelay: '0.1s' }}>
+            <BlobLogo size="hero" />
           </div>
 
-          {/* Chat preview mockup */}
-          <div className="mt-16 max-w-2xl mx-auto">
-            <div className="bg-white rounded-2xl shadow-lg border border-text-300/15 overflow-hidden">
-              <div className="px-5 py-3 bg-bg-alt/50 border-b border-text-300/15 flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-coral/40" />
-                <div className="w-3 h-3 rounded-full bg-gold/40" />
-                <div className="w-3 h-3 rounded-full bg-teal/40" />
-                <span className="ml-2 text-xs font-body text-text-400">MyVansh.AI Chat</span>
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[rgba(0,245,255,0.15)] bg-[rgba(0,245,255,0.05)] mb-6 opacity-0 animate-fade-up" style={{ animationDelay: '0.2s' }}>
+            <span className="w-2 h-2 rounded-full bg-pink animate-pulse" />
+            <span className="text-xs font-mono text-text-700">The essence of your essence &middot; preserved with AI</span>
+          </div>
+
+          {/* Headline */}
+          <h1 className="font-display text-[clamp(2.8rem,6.5vw,4.8rem)] font-extrabold leading-[1.1] tracking-display mb-6 opacity-0 animate-fade-up" style={{ animationDelay: '0.35s' }}>
+            Every family carries<br />
+            an aura worth{' '}
+            <em className="gradient-text italic">preserving</em>
+          </h1>
+
+          {/* Subtext */}
+          <p className="font-body text-text-600 text-lg leading-relaxed mb-10 max-w-[550px] mx-auto opacity-0 animate-fade-up" style={{ animationDelay: '0.5s' }}>
+            Sign up on web, iPhone, or iPad. Build your family tree, preserve stories and photos,
+            and ask AI anything about your origin &mdash; all in one shared family space.
+          </p>
+
+          {/* Buttons */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 opacity-0 animate-fade-up" style={{ animationDelay: '0.65s' }}>
+            <Link
+              href="/login"
+              className="px-8 py-3.5 rounded-full bg-gradient-to-r from-pink via-coral to-gold text-white font-body font-bold text-lg shadow-glow hover:shadow-hover transition-all hover:-translate-y-0.5"
+            >
+              Start Your Family Tree
+            </Link>
+            <a
+              href="#demo"
+              className="px-8 py-3.5 rounded-full border border-[rgba(0,245,255,0.15)] bg-card text-text-700 font-body font-medium text-lg hover:border-[rgba(0,245,255,0.3)] transition-colors"
+            >
+              See It in Action
+            </a>
+          </div>
+
+          {/* Social proof */}
+          <div className="flex items-center justify-center gap-3 mt-10 opacity-0 animate-fade-up" style={{ animationDelay: '0.85s' }}>
+            <div className="flex -space-x-2.5">
+              {['#00F5FF', '#7B61FF', '#BFFF00', '#B388FF'].map((color, i) => (
+                <div
+                  key={i}
+                  className="w-8 h-8 rounded-full border-2 border-bg"
+                  style={{ background: color, opacity: 0.7 }}
+                />
+              ))}
+            </div>
+            <span className="text-sm font-body text-text-500">2,400+ families preserving their aura</span>
+          </div>
+        </div>
+      </section>
+
+      {/* ───────── HOUSEHOLD MODEL STRIP ───────── */}
+      <section className="py-16 bg-bg-alt">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+            {householdFeatures.map((item) => (
+              <div key={item.title} className="p-5 rounded-card bg-card border border-[rgba(0,245,255,0.08)]">
+                <div className="w-10 h-10 rounded-xl bg-[rgba(0,245,255,0.08)] flex items-center justify-center text-xl mb-3">
+                  {item.emoji}
+                </div>
+                <h3 className="font-display text-base font-bold text-text-900 mb-1">{item.title}</h3>
+                <p className="font-body text-text-500 text-sm">{item.description}</p>
               </div>
-              <div className="p-5 space-y-4">
-                <div className="flex justify-end">
-                  <div className="bg-gradient-to-r from-pink/10 via-coral/10 to-gold/10 rounded-2xl rounded-br-md px-4 py-2.5 max-w-xs">
-                    <p className="text-sm font-body text-text-800">Who was my great grandmother on Dad&apos;s side?</p>
-                  </div>
+            ))}
+          </div>
+          <p className="text-center text-text-400 text-xs font-body mt-6">
+            Designed for Baby Boomers, Gen X, and Millennials to enter data &mdash; Gen Alpha consumes it.
+          </p>
+        </div>
+      </section>
+
+      {/* ───────── DEMO ───────── */}
+      <section id="demo" className="py-20 md:py-28 bg-bg">
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="rounded-card border border-[rgba(0,245,255,0.08)] bg-card overflow-hidden shadow-lg">
+            {/* Title bar */}
+            <div className="flex items-center gap-2 px-5 py-3 border-b border-[rgba(0,245,255,0.08)]">
+              <div className="w-3 h-3 rounded-full bg-pink/40" />
+              <div className="w-3 h-3 rounded-full bg-gold/40" />
+              <div className="w-3 h-3 rounded-full bg-pink/40" />
+              <span className="ml-2 text-xs font-mono text-text-400">AuraMi.AI &mdash; The Kumar Family</span>
+            </div>
+            {/* Chat demo */}
+            <div className="p-6 space-y-4">
+              <div className="flex justify-end">
+                <div className="bg-[rgba(0,245,255,0.06)] border border-[rgba(0,245,255,0.1)] rounded-2xl rounded-br-md px-4 py-2.5 max-w-xs">
+                  <p className="text-sm font-body text-text-800">Who was my great grandmother on Dad&apos;s side?</p>
                 </div>
-                <div className="flex justify-start">
-                  <div className="bg-bg rounded-2xl rounded-bl-md px-4 py-2.5 max-w-sm">
-                    <p className="text-sm font-body text-text-700">
-                      Your great grandmother was <strong>Savitri Devi</strong>, born August 22, 1940 in Varanasi.
-                      She was known for her incredible cooking and raised 4 children during a time of great change in India.
-                    </p>
-                  </div>
+              </div>
+              <div className="flex justify-start">
+                <div className="bg-bg-alt border border-[rgba(0,245,255,0.06)] rounded-2xl rounded-bl-md px-4 py-2.5 max-w-sm">
+                  <p className="text-sm font-body text-text-700">
+                    Your great grandmother was <strong className="text-text-900">Savitri Devi</strong>, born August 22, 1940 in Varanasi.
+                    She was known for her incredible cooking and raised 4 children during a time of great change in India.
+                  </p>
                 </div>
-                <div className="flex justify-end">
-                  <div className="bg-gradient-to-r from-pink/10 via-coral/10 to-gold/10 rounded-2xl rounded-br-md px-4 py-2.5 max-w-xs">
-                    <p className="text-sm font-body text-text-800">Show me her photos</p>
-                  </div>
+              </div>
+              <div className="flex justify-end">
+                <div className="bg-[rgba(0,245,255,0.06)] border border-[rgba(0,245,255,0.1)] rounded-2xl rounded-br-md px-4 py-2.5 max-w-xs">
+                  <p className="text-sm font-body text-text-800">Show me her photos</p>
                 </div>
               </div>
             </div>
@@ -211,14 +263,37 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ───────── FEATURES ───────── */}
-      <section id="features" className="py-20 md:py-28 bg-white">
+      {/* ───────── WHY (THE PROBLEM) ───────── */}
+      <section className="py-20 md:py-28 bg-bg-alt">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-16">
-            <p className="text-coral font-body font-semibold text-sm tracking-wide uppercase mb-3">
-              Features
+            <p className="section-label mb-3">The Problem</p>
+            <h2 className="font-display text-[clamp(2rem,4.5vw,3rem)] font-extrabold tracking-section text-text-900 mb-4">
+              Memories fade. Stories get <em className="gradient-text italic">lost</em>.
+            </h2>
+            <p className="font-body text-text-600 text-lg max-w-2xl mx-auto leading-relaxed">
+              Every family has a rich tapestry of stories, sacrifices, and journeys. But without a system to
+              capture them, they vanish within three generations. Your grandchildren deserve to know where they came from.
             </p>
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-text-900 mb-4">
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {stats.map((stat) => (
+              <div key={stat.value} className="text-center p-6">
+                <div className="font-display text-5xl font-extrabold gradient-text mb-3">{stat.value}</div>
+                <p className="font-body text-text-500 text-sm leading-relaxed">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ───────── FEATURES ───────── */}
+      <section id="features" className="py-20 md:py-28 bg-bg">
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <p className="section-label mb-3">Features</p>
+            <h2 className="font-display text-[clamp(2rem,4.5vw,3rem)] font-extrabold tracking-section text-text-900 mb-4">
               Everything Your Family Needs
             </h2>
             <p className="font-body text-text-500 text-lg max-w-xl mx-auto">
@@ -226,14 +301,14 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {features.map((feature) => (
               <div
                 key={feature.title}
-                className="group p-6 rounded-2xl border border-text-300/15 hover:border-coral/30 hover:shadow-md transition-all"
+                className="group p-6 rounded-card bg-card border border-[rgba(0,245,255,0.08)] hover:border-[rgba(0,245,255,0.2)] shadow-sm hover:shadow-hover transition-all duration-300"
               >
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink/15 via-coral/15 to-gold/15 flex items-center justify-center text-coral mb-4 group-hover:scale-110 transition-transform">
-                  {feature.icon}
+                <div className="w-12 h-12 rounded-xl bg-[rgba(0,245,255,0.08)] flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform">
+                  {feature.emoji}
                 </div>
                 <h3 className="font-display text-lg font-bold text-text-900 mb-2">
                   {feature.title}
@@ -248,13 +323,11 @@ export default function Home() {
       </section>
 
       {/* ───────── HOW IT WORKS ───────── */}
-      <section id="how-it-works" className="py-20 md:py-28 bg-bg">
+      <section id="how-it-works" className="py-20 md:py-28 bg-bg-alt">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-16">
-            <p className="text-coral font-body font-semibold text-sm tracking-wide uppercase mb-3">
-              How It Works
-            </p>
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-text-900 mb-4">
+            <p className="section-label mb-3">How It Works</p>
+            <h2 className="font-display text-[clamp(2rem,4.5vw,3rem)] font-extrabold tracking-section text-text-900 mb-4">
               Three Simple Steps
             </h2>
             <p className="font-body text-text-500 text-lg max-w-xl mx-auto">
@@ -265,7 +338,7 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-8">
             {steps.map((item) => (
               <div key={item.step} className="relative">
-                <div className="text-6xl font-display font-bold bg-gradient-to-r from-pink via-coral to-gold bg-clip-text text-transparent opacity-30 mb-4">
+                <div className="text-6xl font-display font-extrabold gradient-text opacity-30 mb-4">
                   {item.step}
                 </div>
                 <h3 className="font-display text-xl font-bold text-text-900 mb-3">
@@ -280,48 +353,28 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ───────── TESTIMONIALS ───────── */}
-      <section className="py-20 md:py-28 bg-white">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <p className="text-coral font-body font-semibold text-sm tracking-wide uppercase mb-3">
-              Testimonials
-            </p>
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-text-900 mb-4">
-              Families Love MyVansh.AI
-            </h2>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {testimonials.map((t) => (
-              <div
-                key={t.name}
-                className="p-6 rounded-2xl bg-bg border border-text-300/10"
-              >
-                <svg className="w-8 h-8 text-coral/30 mb-4" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z" />
-                </svg>
-                <p className="font-body text-text-700 leading-relaxed mb-6">
-                  {t.quote}
-                </p>
-                <div>
-                  <p className="font-body font-semibold text-text-900 text-sm">{t.name}</p>
-                  <p className="font-body text-text-400 text-xs">{t.role}</p>
-                </div>
-              </div>
-            ))}
+      {/* ───────── TESTIMONIAL ───────── */}
+      <section className="py-20 md:py-28 bg-bg">
+        <div className="max-w-3xl mx-auto px-6 text-center">
+          <div className="font-display text-[4.5rem] leading-none gradient-text mb-6">&ldquo;</div>
+          <p className="font-body text-text-700 text-lg md:text-xl leading-relaxed italic mb-8">
+            My mother told me stories about our family leaving Lahore during Partition. I always meant to write
+            them down. With AuraMi.AI, I finally did &mdash; and now my kids can ask the AI about their
+            great-grandmother&apos;s journey whenever they want.
+          </p>
+          <div>
+            <p className="font-body font-semibold text-text-900 text-sm">Anita S.</p>
+            <p className="font-body text-text-400 text-xs">San Francisco, CA</p>
           </div>
         </div>
       </section>
 
       {/* ───────── PRICING ───────── */}
-      <section id="pricing" className="py-20 md:py-28 bg-bg">
+      <section id="pricing" className="py-20 md:py-28 bg-bg-alt">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-16">
-            <p className="text-coral font-body font-semibold text-sm tracking-wide uppercase mb-3">
-              Pricing
-            </p>
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-text-900 mb-4">
+            <p className="section-label mb-3">Pricing</p>
+            <h2 className="font-display text-[clamp(2rem,4.5vw,3rem)] font-extrabold tracking-section text-text-900 mb-4">
               Start Preserving Your Legacy
             </h2>
             <p className="font-body text-text-500 text-lg max-w-xl mx-auto">
@@ -329,41 +382,59 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="max-w-lg mx-auto">
-            <div className="bg-white rounded-2xl shadow-lg border border-text-300/15 overflow-hidden">
-              <div className="bg-gradient-to-r from-pink via-coral to-gold p-6 text-center">
-                <h3 className="font-display text-2xl font-bold text-white mb-1">Family Plan</h3>
-                <p className="text-white/80 font-body text-sm">Everything you need for your family</p>
+          <div className="grid md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+            {/* Free plan */}
+            <div className="rounded-card border border-[rgba(0,245,255,0.15)] bg-card overflow-hidden relative">
+              <div className="absolute top-4 right-4">
+                <span className="px-3 py-1 rounded-full bg-[rgba(0,245,255,0.1)] border border-[rgba(0,245,255,0.15)] text-pink text-xs font-mono">Most Popular</span>
               </div>
               <div className="p-8">
-                <div className="text-center mb-8">
-                  <span className="font-display text-5xl font-bold text-text-900">Free</span>
-                  <p className="font-body text-text-500 text-sm mt-1">during early access</p>
+                <h3 className="font-display text-xl font-bold text-text-900 mb-1">Free Forever</h3>
+                <p className="text-text-500 font-body text-sm mb-6">Everything you need to start</p>
+                <div className="mb-8">
+                  <span className="font-display text-5xl font-extrabold text-text-900">$0</span>
+                  <span className="text-text-500 font-body text-sm ml-1">/month</span>
                 </div>
                 <ul className="space-y-3 mb-8">
-                  {[
-                    '1 household with up to 5 members',
-                    'Unlimited family tree entries',
-                    'AI-powered chat & search',
-                    'Photo & document storage',
-                    'Family stories & oral histories',
-                    'Cross-household linking',
-                    'Timeline & event tracking',
-                  ].map((item) => (
+                  {pricingFeatures.free.map((item) => (
                     <li key={item} className="flex items-start gap-3">
-                      <svg className="w-5 h-5 text-teal flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                      </svg>
-                      <span className="font-body text-text-700 text-sm">{item}</span>
+                      <span className="gradient-text flex-shrink-0 mt-0.5">&check;</span>
+                      <span className="font-body text-text-600 text-sm">{item}</span>
                     </li>
                   ))}
                 </ul>
                 <Link
                   href="/login"
-                  className="block w-full text-center px-6 py-3.5 rounded-full bg-gradient-to-r from-pink via-coral to-gold text-white font-body font-semibold shadow-sm hover:shadow-md transition-shadow"
+                  className="block w-full text-center px-6 py-3.5 rounded-full bg-gradient-to-r from-pink via-coral to-gold text-white font-body font-bold shadow-glow hover:shadow-hover transition-all hover:-translate-y-0.5"
                 >
-                  Get Early Access
+                  Get Started Free
                 </Link>
+              </div>
+            </div>
+
+            {/* Heritage plan */}
+            <div className="rounded-card border border-[rgba(0,245,255,0.08)] bg-card overflow-hidden">
+              <div className="p-8">
+                <h3 className="font-display text-xl font-bold text-text-900 mb-1">Heritage Plan</h3>
+                <p className="text-text-500 font-body text-sm mb-6">For serious family historians</p>
+                <div className="mb-8">
+                  <span className="font-display text-5xl font-extrabold text-text-900">$9</span>
+                  <span className="text-text-500 font-body text-sm ml-1">/month</span>
+                </div>
+                <ul className="space-y-3 mb-8">
+                  {pricingFeatures.heritage.map((item) => (
+                    <li key={item} className="flex items-start gap-3">
+                      <span className="gradient-text flex-shrink-0 mt-0.5">&check;</span>
+                      <span className="font-body text-text-600 text-sm">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  disabled
+                  className="block w-full text-center px-6 py-3.5 rounded-full border border-[rgba(0,245,255,0.15)] text-text-500 font-body font-medium cursor-not-allowed"
+                >
+                  Coming Soon
+                </button>
               </div>
             </div>
           </div>
@@ -371,49 +442,80 @@ export default function Home() {
       </section>
 
       {/* ───────── FINAL CTA ───────── */}
-      <section className="py-20 md:py-28 bg-white">
-        <div className="max-w-3xl mx-auto px-6 text-center">
-          <h2 className="font-display text-3xl md:text-5xl font-bold mb-6">
-            Your Family&apos;s Story{' '}
-            <span className="bg-gradient-to-r from-pink via-coral to-gold bg-clip-text text-transparent">
-              Starts Here
-            </span>
+      <section className="py-20 md:py-28 bg-bg-dark relative overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-[rgba(0,245,255,0.04)] blur-[120px]" />
+        </div>
+        <div className="relative max-w-3xl mx-auto px-6 text-center">
+          <h2 className="font-display text-[clamp(2rem,4.5vw,3rem)] font-extrabold tracking-section mb-6">
+            Don&apos;t let your family&apos;s aura{' '}
+            <br className="hidden md:block" />
+            become a <em className="gradient-text italic">whisper</em>
           </h2>
           <p className="font-body text-text-500 text-lg mb-10 max-w-xl mx-auto">
-            Don&apos;t let another generation pass without capturing the stories, faces, and moments that
-            make your family unique.
+            The best time to preserve your family&apos;s aura was 20 years ago. The second best time is today.
           </p>
-          <Link
-            href="/login"
-            className="inline-block px-10 py-4 rounded-full bg-gradient-to-r from-pink via-coral to-gold text-white font-body font-semibold text-lg shadow-md hover:shadow-lg transition-shadow"
-          >
-            Start Your Family Story
-          </Link>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
+            <Link
+              href="/login"
+              className="px-10 py-4 rounded-full bg-gradient-to-r from-pink via-coral to-gold text-white font-body font-bold text-lg shadow-glow hover:shadow-hover transition-all hover:-translate-y-0.5"
+            >
+              Start Your Family Tree
+            </Link>
+            <button
+              disabled
+              className="px-10 py-4 rounded-full border border-[rgba(0,245,255,0.15)] text-text-500 font-body font-medium text-lg cursor-not-allowed"
+            >
+              Download for iPhone
+            </button>
+          </div>
+          <p className="text-text-400 text-xs font-body">
+            No credit card required &middot; Free forever plan available
+          </p>
         </div>
       </section>
 
       {/* ───────── FOOTER ───────── */}
-      <footer className="bg-bg-dark text-text-300 py-12">
+      <footer className="bg-bg-dark py-12 border-t border-[rgba(232,244,255,0.06)]">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div>
-              <span className="font-display text-xl font-bold bg-gradient-to-r from-pink via-coral to-gold bg-clip-text text-transparent">
-                MyVansh.AI
-              </span>
-              <p className="font-body text-sm text-text-400 mt-1">
-                Every Family Has a Story Worth Keeping.
+          <div className="flex flex-col md:flex-row justify-between gap-10 mb-10">
+            <div className="max-w-xs">
+              <div className="flex items-center gap-2 mb-3">
+                <BlobLogo size="sm" />
+                <Wordmark className="text-lg" />
+              </div>
+              <p className="font-body text-sm text-text-500 leading-relaxed">
+                Preserving family heritage with the power of AI. Your aura &mdash; your essence &mdash; kept alive for every generation to come.
               </p>
             </div>
-            <div className="flex items-center gap-6 text-sm font-body">
-              <a href="#features" className="hover:text-white transition-colors">Features</a>
-              <a href="#how-it-works" className="hover:text-white transition-colors">How It Works</a>
-              <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
-              <Link href="/login" className="hover:text-white transition-colors">Sign In</Link>
+            <div className="grid grid-cols-3 gap-10">
+              <div>
+                <h4 className="font-body font-semibold text-text-700 text-sm mb-4">Product</h4>
+                <ul className="space-y-2">
+                  <li><a href="#features" className="font-body text-text-500 text-sm hover:text-text-900 transition-colors">Features</a></li>
+                  <li><a href="#pricing" className="font-body text-text-500 text-sm hover:text-text-900 transition-colors">Pricing</a></li>
+                  <li><a href="#demo" className="font-body text-text-500 text-sm hover:text-text-900 transition-colors">Demo</a></li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-body font-semibold text-text-700 text-sm mb-4">Resources</h4>
+                <ul className="space-y-2">
+                  <li><a href="#how-it-works" className="font-body text-text-500 text-sm hover:text-text-900 transition-colors">How It Works</a></li>
+                  <li><span className="font-body text-text-400 text-sm">Blog (Coming Soon)</span></li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-body font-semibold text-text-700 text-sm mb-4">Company</h4>
+                <ul className="space-y-2">
+                  <li><span className="font-body text-text-400 text-sm">About (Coming Soon)</span></li>
+                  <li><span className="font-body text-text-400 text-sm">Contact (Coming Soon)</span></li>
+                </ul>
+              </div>
             </div>
           </div>
-          <div className="mt-8 pt-6 border-t border-white/10 text-center">
+          <div className="pt-6 border-t border-[rgba(232,244,255,0.06)] text-center">
             <p className="font-body text-xs text-text-400">
-              &copy; {new Date().getFullYear()} MyVansh.AI. All rights reserved.
+              &copy; {new Date().getFullYear()} AuraMi.AI. All rights reserved.
             </p>
           </div>
         </div>

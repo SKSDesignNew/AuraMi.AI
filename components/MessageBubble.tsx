@@ -17,13 +17,13 @@ export function MessageBubble({ message }: MessageBubbleProps) {
       <div
         className={`max-w-[80%] md:max-w-[70%] rounded-2xl px-4 py-3 ${
           isUser
-            ? 'bg-gradient-to-r from-pink via-coral to-gold text-white'
-            : 'bg-white border border-text-300/20 text-text-800 shadow-sm'
+            ? 'bg-[rgba(0,245,255,0.06)] border border-[rgba(0,245,255,0.1)] text-text-800'
+            : 'bg-bg-alt border border-[rgba(0,245,255,0.06)] text-text-700 shadow-sm'
         }`}
       >
         {!isUser && (
-          <div className="text-xs font-semibold text-coral mb-1 font-body">
-            MyVansh.AI
+          <div className="text-xs font-semibold text-pink mb-1 font-body">
+            AuraMi.AI
           </div>
         )}
         <div className="whitespace-pre-wrap font-body text-sm leading-relaxed">
@@ -31,7 +31,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
         </div>
         <div
           className={`text-[10px] mt-1 ${
-            isUser ? 'text-white/60' : 'text-text-400'
+            isUser ? 'text-text-400' : 'text-text-400'
           }`}
         >
           {message.timestamp.toLocaleTimeString([], {

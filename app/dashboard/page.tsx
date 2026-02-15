@@ -25,10 +25,10 @@ export default async function DashboardPage() {
     return (
       <main className="min-h-screen flex items-center justify-center bg-bg px-4">
         <div className="text-center max-w-md">
-          <h1 className="font-display text-3xl font-bold mb-4">
-            <span className="bg-gradient-to-r from-pink via-coral to-gold bg-clip-text text-transparent">
-              Welcome to MyVansh.AI
-            </span>
+          <h1 className="font-display text-3xl font-extrabold mb-4">
+            <span className="brand-aura">Aura</span>
+            <span className="gradient-text font-extrabold">Mi</span>
+            <span className="gradient-text font-medium">.AI</span>
           </h1>
           <p className="text-text-600 font-body mb-6">
             You don&apos;t have a household yet. Create one to start building
