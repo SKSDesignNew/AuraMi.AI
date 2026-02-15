@@ -132,12 +132,20 @@ export default function Home() {
             <a href="#how-it-works" className="hover:text-text-900 transition-colors">How It Works</a>
             <a href="#pricing" className="hover:text-text-900 transition-colors">Pricing</a>
           </div>
-          <Link
-            href="/dashboard"
-            className="px-5 py-2 rounded-full bg-gradient-to-r from-pink via-coral to-gold text-white text-sm font-body font-bold shadow-glow hover:shadow-hover transition-all hover:-translate-y-0.5"
-          >
-            Launch Dashboard &rarr;
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              href="/dashboard"
+              className="px-5 py-2 rounded-full bg-gradient-to-r from-pink via-coral to-gold text-white text-sm font-body font-bold shadow-glow hover:shadow-hover transition-all hover:-translate-y-0.5"
+            >
+              Launch Dashboard &rarr;
+            </Link>
+            <Link
+              href="/login"
+              className="px-5 py-2 rounded-full border border-[rgba(0,245,255,0.2)] bg-card text-text-700 text-sm font-body font-semibold hover:border-[rgba(0,245,255,0.4)] hover:text-text-900 transition-all"
+            >
+              Login / Sign Up
+            </Link>
+          </div>
         </div>
       </nav>
 
@@ -189,6 +197,12 @@ export default function Home() {
             >
               See It in Action
             </a>
+            <Link
+              href="/dashboard"
+              className="px-8 py-3.5 rounded-full border border-[rgba(123,97,255,0.25)] bg-card text-text-700 font-body font-medium text-lg hover:border-[rgba(123,97,255,0.45)] hover:shadow-[0_0_20px_rgba(123,97,255,0.15)] transition-all"
+            >
+              Launch Dashboard
+            </Link>
           </div>
 
           {/* Social proof */}
