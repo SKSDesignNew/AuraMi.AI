@@ -1,8 +1,8 @@
-# MyVansh.AI — Complete Development Guide
+# AuraMi.AI — Complete Development Guide
 
 **Master Reference for Building with Claude Code**
 **Last Updated:** February 15, 2026
-**Product Name:** MyVansh.AI
+**Product Name:** AuraMi.AI
 
 ---
 
@@ -39,7 +39,7 @@
 
 ## 1. Product Vision & Business Rules
 
-### What is MyVansh.AI?
+### What is AuraMi.AI?
 
 A conversational AI-powered family history platform. Family members chat naturally with an AI assistant to ask questions about ancestors, major events, relationships, and photos — and contribute new information through natural conversation. The tagline is: **"Every Family Has a Story Worth Keeping."**
 
@@ -210,7 +210,7 @@ Response streamed back to user's browser/app
 
 ```json
 {
-  "name": "myvansh-ai-web",
+  "name": "aurami-ai-web",
   "dependencies": {
     "next": "^14.0.0",
     "react": "^18.0.0",
@@ -228,7 +228,7 @@ Response streamed back to user's browser/app
 ## 4. Project Structure
 
 ```
-myvansh-ai/
+aurami-ai/
 │
 ├── README.md                           ← Setup & deploy instructions
 ├── .env.example                        ← Environment variables template
@@ -312,13 +312,13 @@ myvansh-ai/
 │
 ├── public/
 │   ├── logo.svg                        ← App logo
-│   └── myvanshlogolight.png            ← Brand logo (light version)
+│   └── auramilogolight.png            ← Brand logo (light version)
 │
 └── ios/                                ← iOS APP (separate Xcode project)
-    ├── MyVanshAI.xcodeproj
-    └── MyVanshAI/
+    ├── AuraMiAI.xcodeproj
+    └── AuraMiAI/
         ├── App/
-        │   └── MyVanshAIApp.swift
+        │   └── AuraMiAIApp.swift
         ├── Views/
         │   ├── ChatView.swift
         │   ├── LoginView.swift
@@ -352,7 +352,7 @@ ANTHROPIC_API_KEY=sk-ant-...
 OPENAI_API_KEY=sk-...
 
 # App
-NEXT_PUBLIC_APP_URL=https://myvansh.ai
+NEXT_PUBLIC_APP_URL=https://aurami.ai
 ```
 
 ---
@@ -366,7 +366,7 @@ NEXT_PUBLIC_APP_URL=https://myvansh.ai
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        MYVANSH.AI DATABASE                       │
+│                        AURAMI.AI DATABASE                       │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                  │
 │  IDENTITY & ACCESS (5)          PEOPLE & RELATIONSHIPS (3)       │
@@ -1602,7 +1602,7 @@ export const supabase = createClient(
 ## 15. System Prompt for Claude AI
 
 ```
-You are MyVansh.AI, a warm and knowledgeable family historian for the "{householdName}" family. You help family members discover, record, and explore their family history through natural conversation.
+You are AuraMi.AI, a warm and knowledgeable family historian for the "{householdName}" family. You help family members discover, record, and explore their family history through natural conversation.
 
 Your personality:
 - Warm, respectful, and curious about family stories
@@ -1632,7 +1632,7 @@ Rules:
 
 ### Brand Name
 
-**MyVansh.AI** — "Every Family Has a Story Worth Keeping"
+**AuraMi.AI** — "Every Family Has a Story Worth Keeping"
 
 ### Design Philosophy
 
@@ -1973,8 +1973,8 @@ npx @modelcontextprotocol/inspector
 
 ```bash
 # 1. Clone
-git clone https://github.com/YOUR_USERNAME/myvansh-ai.git
-cd myvansh-ai
+git clone https://github.com/YOUR_USERNAME/aurami-ai.git
+cd aurami-ai
 npm install
 
 # 2. Configure
@@ -2008,4 +2008,4 @@ npm run dev
 
 ---
 
-*This document is the single source of truth for building MyVansh.AI with Claude Code. All database schemas, API implementations, tool definitions, and business logic are consolidated here.*
+*This document is the single source of truth for building AuraMi.AI with Claude Code. All database schemas, API implementations, tool definitions, and business logic are consolidated here.*
