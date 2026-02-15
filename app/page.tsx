@@ -227,35 +227,145 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ───────── DEMO ───────── */}
+      {/* ───────── SEE IT IN ACTION ───────── */}
       <section id="demo" className="py-20 md:py-28 bg-bg">
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="rounded-card border border-[rgba(0,245,255,0.08)] bg-card overflow-hidden shadow-lg">
-            {/* Title bar */}
-            <div className="flex items-center gap-2 px-5 py-3 border-b border-[rgba(0,245,255,0.08)]">
-              <div className="w-3 h-3 rounded-full bg-pink/40" />
-              <div className="w-3 h-3 rounded-full bg-gold/40" />
-              <div className="w-3 h-3 rounded-full bg-pink/40" />
-              <span className="ml-2 text-xs font-mono text-text-400">AuraMi.AI &mdash; The Kumar Family</span>
+        <div className="max-w-6xl mx-auto px-6">
+          <div className="text-center mb-16">
+            <p className="section-label mb-3">See It in Action</p>
+            <h2 className="font-display text-[clamp(2rem,4.5vw,3rem)] font-extrabold tracking-section text-text-900 mb-4">
+              Your Family History, <em className="gradient-text italic">All in One Place</em>
+            </h2>
+            <p className="font-body text-text-500 text-lg max-w-xl mx-auto">
+              From your dashboard to AI chat to a visual family tree &mdash; everything works together seamlessly.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* 1. Launch Dashboard */}
+            <div className="rounded-card border border-[rgba(0,245,255,0.08)] bg-card overflow-hidden shadow-sm hover:shadow-hover transition-all group">
+              <div className="p-5 border-b border-[rgba(0,245,255,0.08)]">
+                <div className="w-10 h-10 rounded-xl bg-[rgba(0,245,255,0.08)] flex items-center justify-center text-xl mb-3 group-hover:scale-110 transition-transform">
+                  {'\uD83D\uDCCA'}
+                </div>
+                <h3 className="font-display text-lg font-bold text-text-900 mb-1">Launch Dashboard</h3>
+                <p className="font-body text-text-500 text-sm">Your command center for the entire family history.</p>
+              </div>
+              <div className="p-5 space-y-3">
+                <div className="flex items-center gap-3 p-3 rounded-xl bg-bg-alt">
+                  <span className="text-base">{'\uD83D\uDC68\u200D\uD83D\uDC69\u200D\uD83D\uDC67\u200D\uD83D\uDC66'}</span>
+                  <div>
+                    <p className="font-body text-sm font-semibold text-text-800">The Kumar Family</p>
+                    <p className="font-body text-xs text-text-400">5 members &middot; 42 ancestors</p>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="p-2.5 rounded-lg bg-bg-alt text-center">
+                    <p className="font-display text-lg font-bold gradient-text">127</p>
+                    <p className="font-body text-xs text-text-400">People</p>
+                  </div>
+                  <div className="p-2.5 rounded-lg bg-bg-alt text-center">
+                    <p className="font-display text-lg font-bold gradient-text">34</p>
+                    <p className="font-body text-xs text-text-400">Stories</p>
+                  </div>
+                  <div className="p-2.5 rounded-lg bg-bg-alt text-center">
+                    <p className="font-display text-lg font-bold gradient-text">89</p>
+                    <p className="font-body text-xs text-text-400">Photos</p>
+                  </div>
+                  <div className="p-2.5 rounded-lg bg-bg-alt text-center">
+                    <p className="font-display text-lg font-bold gradient-text">56</p>
+                    <p className="font-body text-xs text-text-400">Events</p>
+                  </div>
+                </div>
+              </div>
             </div>
-            {/* Chat demo */}
-            <div className="p-6 space-y-4">
-              <div className="flex justify-end">
-                <div className="bg-[rgba(0,245,255,0.06)] border border-[rgba(0,245,255,0.1)] rounded-2xl rounded-br-md px-4 py-2.5 max-w-xs">
-                  <p className="text-sm font-body text-text-800">Who was my great grandmother on Dad&apos;s side?</p>
+
+            {/* 2. Chat & Update History */}
+            <div className="rounded-card border border-[rgba(0,245,255,0.08)] bg-card overflow-hidden shadow-sm hover:shadow-hover transition-all group">
+              <div className="p-5 border-b border-[rgba(0,245,255,0.08)]">
+                <div className="w-10 h-10 rounded-xl bg-[rgba(0,245,255,0.08)] flex items-center justify-center text-xl mb-3 group-hover:scale-110 transition-transform">
+                  {'\uD83D\uDCAC'}
+                </div>
+                <h3 className="font-display text-lg font-bold text-text-900 mb-1">Chat &amp; Update History</h3>
+                <p className="font-body text-text-500 text-sm">Ask questions and add new entries naturally.</p>
+              </div>
+              <div className="p-5 space-y-3">
+                <div className="flex justify-end">
+                  <div className="bg-[rgba(0,245,255,0.06)] border border-[rgba(0,245,255,0.1)] rounded-2xl rounded-br-md px-3 py-2 max-w-[85%]">
+                    <p className="text-xs font-body text-text-800">Who was my great grandmother?</p>
+                  </div>
+                </div>
+                <div className="flex justify-start">
+                  <div className="bg-bg-alt border border-[rgba(0,245,255,0.06)] rounded-2xl rounded-bl-md px-3 py-2 max-w-[85%]">
+                    <p className="text-xs font-body text-text-700">
+                      Your great grandmother was <strong className="text-text-900">Savitri Devi</strong>, born 1940 in Varanasi.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex justify-end">
+                  <div className="bg-[rgba(0,245,255,0.06)] border border-[rgba(0,245,255,0.1)] rounded-2xl rounded-br-md px-3 py-2 max-w-[85%]">
+                    <p className="text-xs font-body text-text-800">Add my uncle Ravi, born 1968 in Delhi</p>
+                  </div>
+                </div>
+                <div className="flex justify-start">
+                  <div className="bg-bg-alt border border-[rgba(0,245,255,0.06)] rounded-2xl rounded-bl-md px-3 py-2 max-w-[85%]">
+                    <p className="text-xs font-body text-text-700">
+                      Done! I&apos;ve added <strong className="text-text-900">Ravi Kumar</strong> to the family tree.
+                    </p>
+                  </div>
                 </div>
               </div>
-              <div className="flex justify-start">
-                <div className="bg-bg-alt border border-[rgba(0,245,255,0.06)] rounded-2xl rounded-bl-md px-4 py-2.5 max-w-sm">
-                  <p className="text-sm font-body text-text-700">
-                    Your great grandmother was <strong className="text-text-900">Savitri Devi</strong>, born August 22, 1940 in Varanasi.
-                    She was known for her incredible cooking and raised 4 children during a time of great change in India.
-                  </p>
+            </div>
+
+            {/* 3. Family Tree */}
+            <div className="rounded-card border border-[rgba(0,245,255,0.08)] bg-card overflow-hidden shadow-sm hover:shadow-hover transition-all group">
+              <div className="p-5 border-b border-[rgba(0,245,255,0.08)]">
+                <div className="w-10 h-10 rounded-xl bg-[rgba(0,245,255,0.08)] flex items-center justify-center text-xl mb-3 group-hover:scale-110 transition-transform">
+                  {'\uD83C\uDF33'}
                 </div>
+                <h3 className="font-display text-lg font-bold text-text-900 mb-1">Family Tree</h3>
+                <p className="font-body text-text-500 text-sm">Explore your lineage visually across generations.</p>
               </div>
-              <div className="flex justify-end">
-                <div className="bg-[rgba(0,245,255,0.06)] border border-[rgba(0,245,255,0.1)] rounded-2xl rounded-br-md px-4 py-2.5 max-w-xs">
-                  <p className="text-sm font-body text-text-800">Show me her photos</p>
+              <div className="p-5">
+                {/* Mini tree visualization */}
+                <div className="flex flex-col items-center gap-2">
+                  {/* Generation 1 */}
+                  <div className="flex items-center gap-2">
+                    <div className="px-3 py-1.5 rounded-lg bg-bg-alt border border-[rgba(0,245,255,0.1)] text-center">
+                      <p className="text-xs font-body font-semibold text-text-800">Ramesh K.</p>
+                      <p className="text-[10px] font-body text-text-400">b. 1935</p>
+                    </div>
+                    <span className="text-text-300 text-xs">&mdash;</span>
+                    <div className="px-3 py-1.5 rounded-lg bg-bg-alt border border-[rgba(0,245,255,0.1)] text-center">
+                      <p className="text-xs font-body font-semibold text-text-800">Savitri D.</p>
+                      <p className="text-[10px] font-body text-text-400">b. 1940</p>
+                    </div>
+                  </div>
+                  {/* Connector */}
+                  <div className="w-px h-4 bg-[rgba(0,245,255,0.15)]" />
+                  {/* Generation 2 */}
+                  <div className="flex items-center gap-2">
+                    <div className="px-3 py-1.5 rounded-lg bg-bg-alt border border-[rgba(0,245,255,0.1)] text-center">
+                      <p className="text-xs font-body font-semibold text-text-800">Vikram K.</p>
+                      <p className="text-[10px] font-body text-text-400">b. 1962</p>
+                    </div>
+                    <div className="px-3 py-1.5 rounded-lg bg-bg-alt border border-[rgba(0,245,255,0.1)] text-center">
+                      <p className="text-xs font-body font-semibold text-text-800">Ravi K.</p>
+                      <p className="text-[10px] font-body text-text-400">b. 1968</p>
+                    </div>
+                  </div>
+                  {/* Connector */}
+                  <div className="w-px h-4 bg-[rgba(0,245,255,0.15)]" />
+                  {/* Generation 3 */}
+                  <div className="flex items-center gap-2">
+                    <div className="px-3 py-1.5 rounded-lg border border-pink/30 bg-[rgba(240,147,251,0.06)] text-center">
+                      <p className="text-xs font-body font-semibold text-text-800">You</p>
+                      <p className="text-[10px] font-body text-pink">b. 1992</p>
+                    </div>
+                    <div className="px-3 py-1.5 rounded-lg bg-bg-alt border border-[rgba(0,245,255,0.1)] text-center">
+                      <p className="text-xs font-body font-semibold text-text-800">Priya K.</p>
+                      <p className="text-[10px] font-body text-text-400">b. 1995</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
