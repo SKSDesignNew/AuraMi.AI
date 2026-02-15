@@ -189,6 +189,12 @@ export default function Home() {
             >
               See It in Action
             </a>
+            <Link
+              href="/dashboard"
+              className="px-8 py-3.5 rounded-full border border-[rgba(123,97,255,0.25)] bg-card text-text-700 font-body font-medium text-lg hover:border-[rgba(123,97,255,0.45)] hover:shadow-[0_0_20px_rgba(123,97,255,0.15)] transition-all"
+            >
+              Launch Dashboard
+            </Link>
           </div>
 
           {/* Social proof */}
