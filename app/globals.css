@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,100..900;1,9..144,100..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root {
+  --gradient: linear-gradient(135deg, #F093FB, #F5576C, #FFD452);
+  --gradient-h: linear-gradient(90deg, #F093FB, #F5576C, #FFD452);
+  --sidebar-w: 260px;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: #FBF8F3;
+  color: #1A1215;
+}
