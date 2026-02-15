@@ -35,10 +35,10 @@ export default function LoginPage() {
     <main className="min-h-screen flex items-center justify-center bg-bg px-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <h1 className="font-display text-3xl font-bold mb-2">
-            <span className="bg-gradient-to-r from-pink via-coral to-gold bg-clip-text text-transparent">
-              MyVansh.AI
-            </span>
+          <h1 className="font-display text-3xl font-extrabold mb-2">
+            <span className="brand-aura">Aura</span>
+            <span className="gradient-text font-extrabold">Mi</span>
+            <span className="gradient-text font-medium">.AI</span>
           </h1>
           <p className="text-text-500 font-body text-sm">
             Sign in to explore your family history
@@ -46,7 +46,7 @@ export default function LoginPage() {
         </div>
 
         {submitted ? (
-          <div className="bg-white rounded-2xl p-6 shadow-md text-center">
+          <div className="bg-card rounded-card p-6 border border-[rgba(0,245,255,0.08)] text-center">
             <p className="text-text-700 font-body">
               Check your email for a magic link to sign in.
             </p>
@@ -54,7 +54,7 @@ export default function LoginPage() {
         ) : (
           <form
             onSubmit={handleSubmit}
-            className="bg-white rounded-2xl p-6 shadow-md space-y-4"
+            className="bg-card rounded-card p-6 border border-[rgba(0,245,255,0.08)] space-y-4"
           >
             <div>
               <label
@@ -70,18 +70,18 @@ export default function LoginPage() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="you@example.com"
-                className="w-full rounded-lg border border-text-300/30 bg-bg px-4 py-2.5 text-text-800 placeholder:text-text-400 focus:outline-none focus:ring-2 focus:ring-coral/40 font-body text-sm"
+                className="w-full rounded-lg border border-[rgba(0,245,255,0.1)] bg-bg px-4 py-2.5 text-text-800 placeholder:text-text-400 focus:outline-none focus:ring-2 focus:ring-pink/30 font-body text-sm"
               />
             </div>
 
             {error && (
-              <p className="text-red-500 text-xs font-body">{error}</p>
+              <p className="text-red-400 text-xs font-body">{error}</p>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 rounded-lg bg-gradient-to-r from-pink via-coral to-gold text-white font-body font-semibold shadow-sm hover:shadow-md transition-shadow disabled:opacity-50"
+              className="w-full py-2.5 rounded-full bg-gradient-to-r from-pink via-coral to-gold text-white font-body font-bold shadow-glow hover:shadow-hover transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:hover:translate-y-0"
             >
               {loading ? 'Sending...' : 'Send Magic Link'}
             </button>

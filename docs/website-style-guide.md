@@ -1,6 +1,15 @@
-# MyVansh.AI — Website Style Guide
+# AuraMi.AI — Website Style Guide (Aurora Night Theme)
 
 Reference for all visual styles, tokens, and component patterns used across the website.
+
+---
+
+## Brand Identity
+
+- **Name**: AuraMi.AI
+- **Tagline**: "Your Family's Essence, Preserved Forever"
+- **Theme**: Aurora Night (dark mode)
+- **Wordmark**: `Aura` (shimmer animated) + `Mi` (bold, gradient) + `.AI` (medium, gradient)
 
 ---
 
@@ -8,312 +17,203 @@ Reference for all visual styles, tokens, and component patterns used across the 
 
 All colors are defined in `tailwind.config.ts` under `theme.extend.colors`.
 
-### Primary Gradient Colors
+### Primary Gradient Colors (Cyan / Purple / Lime)
 
 | Token | Hex | Tailwind Class | Usage |
 |-------|-----|----------------|-------|
-| Pink | `#F093FB` | `pink` | Gradient start, accent highlights |
-| Pink Deep | `#D462E5` | `pink-deep` | Hover/active states |
-| Coral | `#F5576C` | `coral` | Gradient middle, primary accent, active nav items |
-| Coral Deep | `#E03E54` | `coral-deep` | Hover/active states |
-| Gold | `#FFD452` | `gold` | Gradient end, warm accents |
-| Gold Deep | `#F0B429` | `gold-deep` | Hover/active states |
+| Pink (Cyan) | `#00F5FF` | `pink` | Primary accent, active states, glow effects |
+| Pink Deep | `#00C4CC` | `pink-deep` | Hover/darker accent |
+| Coral (Purple) | `#7B61FF` | `coral` | Secondary accent, gradient middle |
+| Coral Deep | `#5E48CC` | `coral-deep` | Hover/darker purple |
+| Gold (Lime) | `#BFFF00` | `gold` | Tertiary accent, gradient end |
+| Gold Deep | `#A3D900` | `gold-deep` | Hover/darker lime |
 
 ### Brand Gradient
-
-The signature gradient is used on CTAs, user message bubbles, the logo text, and headings:
 
 ```
 bg-gradient-to-r from-pink via-coral to-gold
 ```
 
-For gradient text (logo, hero headings):
-
-```html
-<span class="bg-gradient-to-r from-pink via-coral to-gold bg-clip-text text-transparent">
-  MyVansh.AI
-</span>
-```
-
-CSS custom properties (defined in `app/globals.css`):
-
+CSS custom properties (in `app/globals.css`):
 ```css
---gradient: linear-gradient(135deg, #F093FB, #F5576C, #FFD452);   /* diagonal */
---gradient-h: linear-gradient(90deg, #F093FB, #F5576C, #FFD452);  /* horizontal */
+--g: linear-gradient(135deg, #00F5FF, #7B61FF, #BFFF00);   /* diagonal */
+--gh: linear-gradient(90deg, #00F5FF, #7B61FF, #BFFF00);   /* horizontal */
 ```
 
-### Backgrounds
+### Backgrounds (Dark)
 
 | Token | Hex | Tailwind Class | Usage |
 |-------|-----|----------------|-------|
-| Background | `#FBF8F3` | `bg-bg` | Page background (warm off-white) |
-| Background Alt | `#F4EFE6` | `bg-bg-alt` | Cards, sidebar hover, secondary surfaces |
-| Dark | `#1A1215` | `bg-bg-dark` | Footer background |
-| White | `#FFFFFF` | `bg-white` | Cards, chat input bar, sidebar |
+| Main Background | `#080C18` | `bg-bg` | Primary page background |
+| Alt Background | `#0E1324` | `bg-bg-alt` | Alternate sections, assistant bubbles |
+| Dark Background | `#04060E` | `bg-bg-dark` | Footer, CTA sections |
+| Card / White | `#131830` | `bg-card` or `bg-bg-white` | Cards, sidebar, inputs, modals |
 
-### Text Scale
+### Text Scale (Light on Dark)
 
 | Token | Hex | Tailwind Class | Usage |
 |-------|-----|----------------|-------|
-| 900 | `#1A1215` | `text-text-900` | Primary headings, body default |
-| 800 | `#2D2328` | `text-text-800` | Chat text, form inputs |
-| 700 | `#4A3F46` | `text-text-700` | Body text, labels, quotes |
-| 600 | `#6B5E64` | `text-text-600` | Secondary body text, nav links |
-| 500 | `#8B7E84` | `text-text-500` | Descriptions, subtitles, placeholders |
-| 400 | `#A89CA2` | `text-text-400` | Timestamps, muted text, footer links |
-| 300 | `#C4BAC0` | `text-text-300` | Borders (via `border-text-300/20`) |
+| 900 | `#E8F4FF` | `text-text-900` | Primary headings |
+| 800 | `#C4DCF0` | `text-text-800` | Chat text, form inputs |
+| 700 | `#94B8D8` | `text-text-700` | Body text, descriptions |
+| 600 | `#6E96BC` | `text-text-600` | Secondary body, nav links |
+| 500 | `#5078A0` | `text-text-500` | Muted text, subtitles |
+| 400 | `#3D5E82` | `text-text-400` | Timestamps, very muted |
+| 300 | `#2C4568` | `text-text-300` | Subtle elements |
 
 ### Accent Colors
 
 | Token | Hex | Tailwind Class | Usage |
 |-------|-----|----------------|-------|
-| Teal | `#2DD4BF` | `teal` | Success states, checkmarks in pricing |
-| Blue | `#60A5FA` | `blue` | Info highlights |
-| Purple | `#A78BFA` | `purple` | Decorative accents |
+| Teal | `#00F5FF` | `teal` | Same as pink (cyan primary) |
+| Blue | `#7B61FF` | `blue` | Same as coral (purple) |
+| Purple | `#B388FF` | `purple` | Light purple accents |
 
 ---
 
 ## Typography
 
-Fonts are loaded via Google Fonts in `app/globals.css` and configured in `tailwind.config.ts`.
-
 ### Font Families
 
 | Token | Font | Tailwind Class | Usage |
 |-------|------|----------------|-------|
-| Display | Fraunces (serif) | `font-display` | Headings, brand name, step numbers |
-| Body | Plus Jakarta Sans (sans-serif) | `font-body` | All body text, buttons, labels, nav |
-| Mono | IBM Plex Mono (monospace) | `font-mono` | Code/technical elements |
+| Display | Fraunces (serif) | `font-display` | Headings, brand, step numbers |
+| Body | Plus Jakarta Sans (sans-serif) | `font-body` | Body text, buttons, nav |
+| Mono | IBM Plex Mono (monospace) | `font-mono` | Section labels, badges, code |
 
 ### Heading Patterns
 
 ```html
-<!-- Hero heading -->
-<h1 class="font-display text-5xl md:text-7xl font-bold leading-tight">
+<!-- Hero heading (clamp responsive) -->
+<h1 class="font-display text-[clamp(2.8rem,6.5vw,4.8rem)] font-extrabold leading-[1.1] tracking-display">
 
 <!-- Section heading -->
-<h2 class="font-display text-3xl md:text-4xl font-bold text-text-900">
+<h2 class="font-display text-[clamp(2rem,4.5vw,3rem)] font-extrabold tracking-section text-text-900">
 
-<!-- Card heading -->
-<h3 class="font-display text-lg font-bold text-text-900">
-
-<!-- Section label (above heading) -->
-<p class="text-coral font-body font-semibold text-sm tracking-wide uppercase">
-```
-
-### Body Text Patterns
-
-```html
-<!-- Primary body -->
-<p class="font-body text-text-600 text-lg leading-relaxed">
-
-<!-- Card description -->
-<p class="font-body text-text-500 text-sm leading-relaxed">
-
-<!-- Small/muted text -->
-<p class="font-body text-text-400 text-xs">
+<!-- Section label (mono, gradient) -->
+<p class="section-label">Features</p>
 ```
 
 ---
 
 ## Shadows
 
-Defined in `tailwind.config.ts` under `theme.extend.boxShadow`.
-
 | Token | Value | Tailwind Class | Usage |
 |-------|-------|----------------|-------|
-| Small | `0 1px 6px rgba(0,0,0,0.035)` | `shadow-sm` | Buttons, message bubbles |
-| Medium | `0 4px 16px rgba(0,0,0,0.06)` | `shadow-md` | Cards, modals, button hover |
-| Large | `0 12px 40px rgba(0,0,0,0.08)` | `shadow-lg` | Hero elements, elevated cards |
-
-Common hover pattern:
-
-```html
-<button class="shadow-sm hover:shadow-md transition-shadow">
-```
-
----
-
-## Layout
-
-| Token | Value | Usage |
-|-------|-------|-------|
-| `--sidebar-w` | `260px` | Dashboard sidebar width |
-| Max content width | `max-w-6xl` (1152px) | Landing page sections |
-| Max chat width | `max-w-3xl` | Chat input area |
-| Section padding | `py-20 md:py-28` | Landing page sections |
-| Container padding | `px-6` | Horizontal page padding |
+| Small | `0 1px 6px rgba(0,0,0,0.15)` | `shadow-sm` | Cards default |
+| Medium | `0 4px 16px rgba(0,245,255,0.06)` | `shadow-md` | Elevated cards |
+| Large | `0 12px 40px rgba(0,0,0,0.25)` | `shadow-lg` | Hero, demo window |
+| Hover | Cyan glow + dark shadow | `shadow-hover` | Card/button hover |
+| Glow | `0 4px 24px rgba(0,245,255,0.25)` | `shadow-glow` | Primary buttons |
 
 ---
 
 ## Borders
 
-Borders use the `text-300` color at low opacity for a subtle, warm feel:
+All borders use cyan at low opacity:
 
 ```html
-<!-- Standard border -->
-border border-text-300/15
-
-<!-- Slightly more visible -->
-border border-text-300/20
-
-<!-- Divider lines -->
-border-b border-text-300/20
-
-<!-- Hover border -->
-hover:border-coral/30
+border border-[rgba(0,245,255,0.08)]     <!-- standard -->
+border border-[rgba(0,245,255,0.15)]     <!-- emphasized -->
+hover:border-[rgba(0,245,255,0.2)]       <!-- hover -->
+border-[rgba(232,244,255,0.06)]          <!-- footer dividers -->
 ```
+
+---
+
+## Animations
+
+### Morphing Blob Logo
+4-layer CSS blob that continuously shape-shifts. Classes: `blob-container`, `blob-outer`, `blob-mid`, `blob-inner`, `blob-core`. Sizes: `blob-hero` (80px), `blob-sm` (34px), `blob-xs` (30px).
+
+### Aura Shimmer
+Light beam sweeps across "Aura" text. Class: `brand-aura`.
+
+### Fade Up
+Staggered entrance animation. Class: `animate-fade-up` with `animationDelay` styles.
+
+### Glow Drift
+Background orbs drift slowly. Classes: `animate-glow-drift-1`, `animate-glow-drift-2`, `animate-glow-drift-3`.
+
+### Badge Pulse
+Pulsing dot in hero badge. Class: `animate-pulse`.
 
 ---
 
 ## Component Patterns
 
-### Buttons
-
-**Primary CTA (gradient):**
+### Primary Button (Gradient Pill)
 ```html
-<button class="px-8 py-3.5 rounded-full bg-gradient-to-r from-pink via-coral to-gold text-white font-body font-semibold shadow-sm hover:shadow-md transition-shadow">
-  Start Your Family Story
-</button>
+<button class="px-8 py-3.5 rounded-full bg-gradient-to-r from-pink via-coral to-gold text-white font-body font-bold shadow-glow hover:shadow-hover transition-all hover:-translate-y-0.5">
 ```
 
-**Secondary (outline):**
+### Secondary Button (Card Outline)
 ```html
-<button class="px-8 py-3.5 rounded-full border border-text-300/40 text-text-700 font-body font-medium hover:bg-white transition-colors">
-  See How It Works
-</button>
-```
-
-**Disabled state:**
-```html
-disabled:opacity-50 disabled:cursor-not-allowed
+<button class="px-8 py-3.5 rounded-full border border-[rgba(0,245,255,0.15)] bg-card text-text-700 font-body font-medium hover:border-[rgba(0,245,255,0.3)] transition-colors">
 ```
 
 ### Cards
-
 ```html
-<div class="p-6 rounded-2xl border border-text-300/15 hover:border-coral/30 hover:shadow-md transition-all">
-  <!-- Card content -->
-</div>
+<div class="p-6 rounded-card bg-card border border-[rgba(0,245,255,0.08)] hover:border-[rgba(0,245,255,0.2)] shadow-sm hover:shadow-hover transition-all duration-300">
 ```
+
+### Glass Navigation
+```html
+<nav class="glass fixed top-0 left-0 right-0 z-[1000] h-16">
+```
+Uses `.glass` class: `rgba(8,12,24,0.92)` + `backdrop-filter: blur(20px)`.
 
 ### Form Inputs
-
 ```html
-<input class="w-full rounded-lg border border-text-300/30 bg-bg px-4 py-2.5 text-text-800 placeholder:text-text-400 focus:outline-none focus:ring-2 focus:ring-coral/40 font-body text-sm" />
+<input class="w-full rounded-lg border border-[rgba(0,245,255,0.1)] bg-bg px-4 py-2.5 text-text-800 placeholder:text-text-400 focus:outline-none focus:ring-2 focus:ring-pink/30 font-body text-sm" />
 ```
 
-### Chat Textarea
-
+### Gradient Text
 ```html
-<textarea class="flex-1 resize-none rounded-xl border border-text-300/30 bg-bg px-4 py-3 text-text-800 placeholder:text-text-400 focus:outline-none focus:ring-2 focus:ring-coral/40 font-body" />
-```
-
-### Navigation Bar
-
-```html
-<nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-text-300/15">
-```
-
-### Sidebar Navigation Items
-
-```html
-<!-- Active -->
-<button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-body bg-coral/10 text-coral font-semibold">
-
-<!-- Inactive -->
-<button class="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-body text-text-600 hover:bg-bg-alt">
+<span class="gradient-text">text</span>        <!-- static gradient -->
+<span class="brand-aura">Aura</span>           <!-- animated shimmer -->
+<p class="section-label">Label</p>             <!-- mono uppercase gradient -->
 ```
 
 ### Message Bubbles
 
-**User message:**
+**User:**
 ```html
-<div class="bg-gradient-to-r from-pink via-coral to-gold text-white rounded-2xl px-4 py-3">
+<div class="bg-[rgba(0,245,255,0.06)] border border-[rgba(0,245,255,0.1)] text-text-800 rounded-2xl px-4 py-3">
 ```
 
-**Assistant message:**
+**Assistant:**
 ```html
-<div class="bg-white border border-text-300/20 text-text-800 shadow-sm rounded-2xl px-4 py-3">
-  <div class="text-xs font-semibold text-coral mb-1 font-body">MyVansh.AI</div>
-  <!-- content -->
+<div class="bg-bg-alt border border-[rgba(0,245,255,0.06)] text-text-700 shadow-sm rounded-2xl px-4 py-3">
+  <div class="text-xs font-semibold text-pink mb-1 font-body">AuraMi.AI</div>
 </div>
 ```
 
-### Loading Indicator
+### Sidebar Nav Items
 
+**Active:**
 ```html
-<span class="w-2 h-2 bg-coral rounded-full animate-bounce" />
-<span class="w-2 h-2 bg-coral rounded-full animate-bounce [animation-delay:0.1s]" />
-<span class="w-2 h-2 bg-coral rounded-full animate-bounce [animation-delay:0.2s]" />
+<button class="bg-[rgba(0,245,255,0.08)] text-pink font-semibold">
+```
+
+**Inactive:**
+```html
+<button class="text-text-600 hover:bg-bg-alt">
 ```
 
 ---
 
-## Rounded Corners
-
-| Size | Usage |
-|------|-------|
-| `rounded-lg` | Inputs, sidebar nav items |
-| `rounded-xl` | Chat input, icon containers |
-| `rounded-2xl` | Cards, message bubbles, modals |
-| `rounded-full` | CTA buttons, avatar images |
-
----
-
-## Background Decorations
-
-The landing page hero uses soft gradient blurs for depth:
-
-```html
-<div class="absolute top-20 left-1/4 w-96 h-96 bg-pink/10 rounded-full blur-3xl" />
-<div class="absolute top-40 right-1/4 w-80 h-80 bg-gold/10 rounded-full blur-3xl" />
-```
-
----
-
-## How to Make Style Changes
-
-### Changing Brand Colors
-
-Edit `tailwind.config.ts` under `theme.extend.colors`. Update the corresponding CSS custom properties in `app/globals.css` to keep them in sync.
-
-### Adding a New Color
-
-1. Add the color to `tailwind.config.ts`:
-   ```ts
-   colors: {
-     'new-color': '#HEX_VALUE',
-   }
-   ```
-2. Use it in components as `text-new-color`, `bg-new-color`, `border-new-color`, etc.
-
-### Changing Fonts
-
-1. Update the Google Fonts import URL in `app/globals.css`
-2. Update `fontFamily` in `tailwind.config.ts`
-3. Update the `body` rule in `globals.css` if changing the default body font
-
-### Adding a New Component
-
-Follow these conventions:
-- Use `font-display` for headings, `font-body` for everything else
-- Use `rounded-2xl` for cards, `rounded-full` for buttons
-- Use `border-text-300/15` or `border-text-300/20` for borders
-- Use `shadow-sm` by default, `hover:shadow-md` for interactive elements
-- Use `transition-shadow` or `transition-colors` for hover effects
-- Apply the brand gradient for primary actions
-
-### Key Files
+## Key Files
 
 | File | Purpose |
 |------|---------|
-| `tailwind.config.ts` | Color tokens, fonts, shadows |
-| `app/globals.css` | Font imports, CSS variables, base body styles |
-| `app/layout.tsx` | Root HTML structure, global CSS import |
+| `tailwind.config.ts` | Color tokens, fonts, shadows, animations, keyframes |
+| `app/globals.css` | Font imports, CSS variables, blob logo, shimmer, glass, grain overlay |
+| `app/layout.tsx` | Root HTML structure |
 | `app/page.tsx` | Landing page (hero, features, pricing, footer) |
 | `app/login/page.tsx` | Login form |
-| `app/dashboard/page.tsx` | Dashboard layout |
-| `components/Sidebar.tsx` | Dashboard sidebar navigation |
+| `app/dashboard/dashboard-client.tsx` | Dashboard layout with glass topbar |
+| `components/Sidebar.tsx` | Dashboard sidebar (dark card background) |
 | `components/ChatWindow.tsx` | Chat interface |
 | `components/MessageBubble.tsx` | Chat message styling |
+| `AURAMI-WEBSITE-SPEC.md` | Full design specification reference |

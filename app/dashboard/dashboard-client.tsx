@@ -33,9 +33,9 @@ export default function DashboardClient({
 
       <main className="flex-1 flex flex-col">
         {/* Top bar */}
-        <header className="flex items-center justify-between px-6 py-3 border-b border-text-300/20 bg-white">
+        <header className="glass flex items-center justify-between px-6 py-3">
           <div>
-            <h2 className="font-display text-lg font-bold text-text-800">
+            <h2 className="font-display text-lg font-bold text-text-900">
               {householdName}
             </h2>
           </div>
@@ -43,7 +43,7 @@ export default function DashboardClient({
             <span className="text-text-500 text-sm font-body">{userEmail}</span>
             <button
               onClick={handleSignOut}
-              className="text-text-400 text-sm font-body hover:text-coral transition-colors"
+              className="text-text-400 text-sm font-body hover:text-pink transition-colors"
             >
               Sign Out
             </button>
