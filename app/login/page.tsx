@@ -1,15 +1,34 @@
 'use client';
 
 import { useState } from 'react';
+import { supabase } from '@/lib/supabase-client';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    // TODO: Integrate Supabase Auth magic link
+    setLoading(true);
+    setError('');
+
+    const { error: authError } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+
+    if (authError) {
+      setError(authError.message);
+      setLoading(false);
+      return;
+    }
+
     setSubmitted(true);
+    setLoading(false);
   }
 
   return (
@@ -55,11 +74,16 @@ export default function LoginPage() {
               />
             </div>
 
+            {error && (
+              <p className="text-red-500 text-xs font-body">{error}</p>
+            )}
+
             <button
               type="submit"
-              className="w-full py-2.5 rounded-lg bg-gradient-to-r from-pink via-coral to-gold text-white font-body font-semibold shadow-sm hover:shadow-md transition-shadow"
+              disabled={loading}
+              className="w-full py-2.5 rounded-lg bg-gradient-to-r from-pink via-coral to-gold text-white font-body font-semibold shadow-sm hover:shadow-md transition-shadow disabled:opacity-50"
             >
-              Send Magic Link
+              {loading ? 'Sending...' : 'Send Magic Link'}
             </button>
           </form>
         )}

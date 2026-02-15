@@ -1,41 +1,55 @@
-'use client';
+import { createSupabaseServerClient } from '@/lib/supabase-ssr';
+import { redirect } from 'next/navigation';
+import DashboardClient from './dashboard-client';
 
-import { useState } from 'react';
-import Sidebar from '@/components/Sidebar';
-import ChatWindow from '@/components/ChatWindow';
+export default async function DashboardPage() {
+  const supabase = createSupabaseServerClient();
 
-// TODO: Replace with real auth context after Supabase Auth integration
-const DEMO_HOUSEHOLD_ID = 'demo-household-id';
-const DEMO_USER_ID = 'demo-user-id';
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-export default function Dashboard() {
-  const [activePage, setActivePage] = useState('chat');
+  if (!user) {
+    redirect('/login');
+  }
+
+  // Get user's household membership
+  const { data: membership } = await supabase
+    .from('household_members')
+    .select('household_id, role, household:households(id, name)')
+    .eq('user_id', user.id)
+    .eq('status', 'active')
+    .single();
+
+  if (!membership) {
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-bg px-4">
+        <div className="text-center max-w-md">
+          <h1 className="font-display text-3xl font-bold mb-4">
+            <span className="bg-gradient-to-r from-pink via-coral to-gold bg-clip-text text-transparent">
+              Welcome to MyVansh.AI
+            </span>
+          </h1>
+          <p className="text-text-600 font-body mb-6">
+            You don&apos;t have a household yet. Create one to start building
+            your family history.
+          </p>
+          <p className="text-text-400 font-body text-sm">
+            Household creation coming soon. Contact an admin to get started.
+          </p>
+        </div>
+      </main>
+    );
+  }
+
+  const household = membership.household as unknown as { id: string; name: string };
 
   return (
-    <div className="flex h-screen bg-bg">
-      <Sidebar active={activePage} onNavigate={setActivePage} />
-
-      <main className="flex-1 flex flex-col">
-        {activePage === 'chat' && (
-          <ChatWindow
-            householdId={DEMO_HOUSEHOLD_ID}
-            userId={DEMO_USER_ID}
-          />
-        )}
-
-        {activePage !== 'chat' && (
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center">
-              <h2 className="font-display text-2xl font-bold text-text-800 mb-2 capitalize">
-                {activePage.replace('-', ' ')}
-              </h2>
-              <p className="text-text-500 font-body">
-                This section is coming soon.
-              </p>
-            </div>
-          </div>
-        )}
-      </main>
-    </div>
+    <DashboardClient
+      userId={user.id}
+      userEmail={user.email || ''}
+      householdId={household.id}
+      householdName={household.name}
+    />
   );
 }
