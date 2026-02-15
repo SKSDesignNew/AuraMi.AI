@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { supabase } from '@/lib/supabase-client';
 
 interface Asset {
   id: string;
@@ -25,6 +24,7 @@ export default function PhotosPage({ householdId, userId }: PhotosPageProps) {
   const [uploading, setUploading] = useState(false);
   const [message, setMessage] = useState('');
   const [selectedAsset, setSelectedAsset] = useState<Asset | null>(null);
+  const [assetUrls, setAssetUrls] = useState<Record<string, string>>({});
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -33,13 +33,29 @@ export default function PhotosPage({ householdId, userId }: PhotosPageProps) {
 
   async function loadAssets() {
     setLoading(true);
-    const { data } = await supabase
-      .from('assets')
-      .select('id, asset_type, storage_path, original_filename, description, captured_at, year, created_at')
-      .eq('household_id', householdId)
-      .order('created_at', { ascending: false });
+    try {
+      const res = await fetch(`/api/data?type=assets&householdId=${householdId}`);
+      const json = await res.json();
+      const data = json.data || [];
+      setAssets(data);
 
-    setAssets(data || []);
+      // Pre-fetch signed URLs for photos
+      const urls: Record<string, string> = {};
+      for (const asset of data) {
+        if (asset.asset_type === 'photo') {
+          try {
+            const urlRes = await fetch(`/api/data?type=asset_url&householdId=${householdId}&path=${encodeURIComponent(asset.storage_path)}`);
+            const urlJson = await urlRes.json();
+            urls[asset.id] = urlJson.url;
+          } catch {
+            // skip
+          }
+        }
+      }
+      setAssetUrls(urls);
+    } catch {
+      setAssets([]);
+    }
     setLoading(false);
   }
 
@@ -50,52 +66,31 @@ export default function PhotosPage({ householdId, userId }: PhotosPageProps) {
     setUploading(true);
     setMessage('');
 
-    let uploaded = 0;
+    const formData = new FormData();
+    formData.append('householdId', householdId);
     for (const file of Array.from(files)) {
-      const ext = file.name.split('.').pop() || 'bin';
-      const path = `${householdId}/${crypto.randomUUID()}.${ext}`;
+      formData.append('files', file);
+    }
 
-      // Upload to Supabase Storage
-      const { error: uploadErr } = await supabase.storage
-        .from('family_assets')
-        .upload(path, file, { contentType: file.type });
-
-      if (uploadErr) {
-        setMessage(`Failed to upload ${file.name}: ${uploadErr.message}`);
-        continue;
-      }
-
-      // Determine asset type
-      let assetType = 'document';
-      if (file.type.startsWith('image/')) assetType = 'photo';
-      else if (file.type.startsWith('video/')) assetType = 'video';
-      else if (file.type.startsWith('audio/')) assetType = 'audio';
-
-      // Create asset record
-      await supabase.from('assets').insert({
-        household_id: householdId,
-        asset_type: assetType,
-        storage_bucket: 'family_assets',
-        storage_path: path,
-        original_filename: file.name,
-        mime_type: file.type,
-        created_by: userId,
+    try {
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
       });
+      const data = await res.json();
 
-      uploaded++;
+      if (res.ok && data.uploaded > 0) {
+        setMessage(`${data.uploaded} file${data.uploaded > 1 ? 's' : ''} uploaded!`);
+        loadAssets();
+      } else {
+        setMessage(data.error || 'Upload failed.');
+      }
+    } catch {
+      setMessage('Network error. Please try again.');
     }
 
-    if (uploaded > 0) {
-      setMessage(`${uploaded} file${uploaded > 1 ? 's' : ''} uploaded!`);
-      loadAssets();
-    }
     setUploading(false);
     if (fileInputRef.current) fileInputRef.current.value = '';
-  }
-
-  function getPublicUrl(path: string) {
-    const { data } = supabase.storage.from('family_assets').getPublicUrl(path);
-    return data?.publicUrl || '';
   }
 
   if (loading) {
@@ -149,7 +144,6 @@ export default function PhotosPage({ householdId, userId }: PhotosPageProps) {
           </div>
         ) : (
           <>
-            {/* Gallery grid */}
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
               {assets.map((asset) => (
                 <div
@@ -157,9 +151,9 @@ export default function PhotosPage({ householdId, userId }: PhotosPageProps) {
                   className="group relative aspect-square rounded-card overflow-hidden bg-bg-alt border border-[rgba(0,245,255,0.08)] cursor-pointer hover:border-[rgba(0,245,255,0.25)] transition-all"
                   onClick={() => setSelectedAsset(asset)}
                 >
-                  {asset.asset_type === 'photo' ? (
+                  {asset.asset_type === 'photo' && assetUrls[asset.id] ? (
                     <img
-                      src={getPublicUrl(asset.storage_path)}
+                      src={assetUrls[asset.id]}
                       alt={asset.description || asset.original_filename || 'Photo'}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
@@ -185,7 +179,6 @@ export default function PhotosPage({ householdId, userId }: PhotosPageProps) {
               ))}
             </div>
 
-            {/* Lightbox */}
             {selectedAsset && (
               <div
                 className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-6"
@@ -201,9 +194,9 @@ export default function PhotosPage({ householdId, userId }: PhotosPageProps) {
                   >
                     Close
                   </button>
-                  {selectedAsset.asset_type === 'photo' ? (
+                  {selectedAsset.asset_type === 'photo' && assetUrls[selectedAsset.id] ? (
                     <img
-                      src={getPublicUrl(selectedAsset.storage_path)}
+                      src={assetUrls[selectedAsset.id]}
                       alt={selectedAsset.description || 'Photo'}
                       className="max-h-[75vh] rounded-lg object-contain"
                     />

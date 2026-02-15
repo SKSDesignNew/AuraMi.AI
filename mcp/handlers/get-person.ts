@@ -1,4 +1,4 @@
-import { supabaseAdmin } from '@/lib/supabase-server';
+import { query, queryOne } from '@/lib/db';
 
 interface GetPersonInput {
   person_id?: string;
@@ -10,35 +10,33 @@ interface GetPersonInput {
 export async function getPerson(input: GetPersonInput) {
   const { person_id, name, householdId } = input;
 
-  let person;
+  let person: Record<string, unknown> | null = null;
 
   if (person_id) {
-    const { data, error } = await supabaseAdmin
-      .from('persons')
-      .select('*')
-      .eq('id', person_id)
-      .eq('household_id', householdId)
-      .single();
+    person = await queryOne(
+      `SELECT * FROM persons WHERE id = $1 AND household_id = $2`,
+      [person_id, householdId]
+    );
 
-    if (error) throw new Error(`Person not found: ${error.message}`);
-    person = data;
+    if (!person) throw new Error('Person not found');
   } else if (name) {
-    const { data, error } = await supabaseAdmin
-      .from('persons')
-      .select('*')
-      .eq('household_id', householdId)
-      .or(`first_name.ilike.%${name}%,last_name.ilike.%${name}%,nickname.ilike.%${name}%`)
-      .limit(5);
+    const searchPattern = `%${name}%`;
+    const matches = await query<Record<string, unknown>>(
+      `SELECT * FROM persons
+       WHERE household_id = $1
+         AND (first_name ILIKE $2 OR last_name ILIKE $2 OR nickname ILIKE $2)
+       LIMIT 5`,
+      [householdId, searchPattern]
+    );
 
-    if (error) throw new Error(`Search failed: ${error.message}`);
-    if (!data || data.length === 0) {
+    if (!matches || matches.length === 0) {
       return { found: false, message: `No person found matching "${name}"` };
     }
-    if (data.length > 1) {
+    if (matches.length > 1) {
       return {
         found: true,
         multiple: true,
-        matches: data.map((p) => ({
+        matches: matches.map((p) => ({
           id: p.id,
           name: `${p.first_name} ${p.last_name}`,
           nickname: p.nickname,
@@ -47,31 +45,45 @@ export async function getPerson(input: GetPersonInput) {
         message: 'Multiple matches found. Please specify which person.',
       };
     }
-    person = data[0];
+    person = matches[0];
   } else {
     throw new Error('Either person_id or name is required');
   }
 
   // Fetch related data in parallel
   const [relationships, events, stories, photos] = await Promise.all([
-    supabaseAdmin
-      .from('relationships')
-      .select('*, from_person:persons!relationships_from_person_id_fkey(id, first_name, last_name), to_person:persons!relationships_to_person_id_fkey(id, first_name, last_name)')
-      .eq('household_id', householdId)
-      .or(`from_person_id.eq.${person.id},to_person_id.eq.${person.id}`),
-    supabaseAdmin
-      .from('event_links')
-      .select('role, event:events(*)')
-      .eq('household_id', householdId)
-      .eq('person_id', person.id),
-    supabaseAdmin
-      .from('story_persons')
-      .select('mention_type, story:stories(*)')
-      .eq('person_id', person.id),
-    supabaseAdmin
-      .from('asset_persons')
-      .select('is_primary, asset:assets(*)')
-      .eq('person_id', person.id),
+    query<Record<string, unknown>>(
+      `SELECT r.*,
+              json_build_object('id', fp.id, 'first_name', fp.first_name, 'last_name', fp.last_name) AS from_person,
+              json_build_object('id', tp.id, 'first_name', tp.first_name, 'last_name', tp.last_name) AS to_person
+       FROM relationships r
+       JOIN persons fp ON fp.id = r.from_person_id
+       JOIN persons tp ON tp.id = r.to_person_id
+       WHERE r.household_id = $1
+         AND (r.from_person_id = $2 OR r.to_person_id = $2)`,
+      [householdId, person.id]
+    ),
+    query<Record<string, unknown>>(
+      `SELECT el.role, row_to_json(e.*) AS event
+       FROM event_links el
+       JOIN events e ON e.id = el.event_id
+       WHERE el.household_id = $1 AND el.person_id = $2`,
+      [householdId, person.id]
+    ),
+    query<Record<string, unknown>>(
+      `SELECT sp.mention_type, row_to_json(s.*) AS story
+       FROM story_persons sp
+       JOIN stories s ON s.id = sp.story_id
+       WHERE sp.person_id = $1`,
+      [person.id]
+    ),
+    query<Record<string, unknown>>(
+      `SELECT ap.is_primary, row_to_json(a.*) AS asset
+       FROM asset_persons ap
+       JOIN assets a ON a.id = ap.asset_id
+       WHERE ap.person_id = $1`,
+      [person.id]
+    ),
   ]);
 
   return {
@@ -92,9 +104,9 @@ export async function getPerson(input: GetPersonInput) {
       death_date: person.death_date,
       notes: person.notes,
     },
-    relationships: relationships.data || [],
-    events: events.data || [],
-    stories: stories.data || [],
-    photos: photos.data || [],
+    relationships,
+    events,
+    stories,
+    photos,
   };
 }

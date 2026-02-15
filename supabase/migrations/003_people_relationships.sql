@@ -30,7 +30,7 @@ create table persons (
   notes text,
   primary_photo_asset_id uuid, -- FK added after assets table created
   embedding vector,
-  created_by uuid not null references auth.users(id),
+  created_by uuid not null references profiles(id),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

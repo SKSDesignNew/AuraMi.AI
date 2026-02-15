@@ -1,4 +1,4 @@
-import { supabaseAdmin } from '@/lib/supabase-server';
+import { query } from '@/lib/db';
 
 interface GetFamilyTreeInput {
   person_id: string;
@@ -24,21 +24,20 @@ export async function getFamilyTree(input: GetFamilyTreeInput) {
   const { person_id, direction = 'both', depth = 3, householdId } = input;
 
   // Get all persons and relationships for this household (+ linked)
-  const [personsRes, relsRes] = await Promise.all([
-    supabaseAdmin.rpc('get_persons_across_households', {
-      input_household_id: householdId,
-    }),
-    supabaseAdmin.rpc('get_relationships_across_households', {
-      input_household_id: householdId,
-    }),
+  const [persons, relationships] = await Promise.all([
+    query<Record<string, unknown>>(
+      `SELECT * FROM get_persons_across_households($1)`,
+      [householdId]
+    ),
+    query<Record<string, unknown>>(
+      `SELECT * FROM get_relationships_across_households($1)`,
+      [householdId]
+    ),
   ]);
-
-  const persons = personsRes.data || [];
-  const relationships = relsRes.data || [];
 
   const personMap = new Map<string, Record<string, unknown>>();
   for (const p of persons) {
-    personMap.set(p.id, p);
+    personMap.set(p.id as string, p);
   }
 
   function buildNode(id: string): TreeNode | null {
@@ -58,11 +57,10 @@ export async function getFamilyTree(input: GetFamilyTreeInput) {
   function getAncestors(id: string, currentDepth: number): TreeNode[] {
     if (currentDepth >= depth) return [];
     const parents = relationships.filter(
-      (r: Record<string, unknown>) =>
-        r.to_person_id === id && r.relation_type === 'parent'
+      (r) => r.to_person_id === id && r.relation_type === 'parent'
     );
     return parents
-      .map((r: Record<string, unknown>) => {
+      .map((r) => {
         const node = buildNode(r.from_person_id as string);
         if (!node) return null;
         node.ancestors = getAncestors(node.id, currentDepth + 1);
@@ -74,11 +72,10 @@ export async function getFamilyTree(input: GetFamilyTreeInput) {
   function getDescendants(id: string, currentDepth: number): TreeNode[] {
     if (currentDepth >= depth) return [];
     const children = relationships.filter(
-      (r: Record<string, unknown>) =>
-        r.from_person_id === id && r.relation_type === 'parent'
+      (r) => r.from_person_id === id && r.relation_type === 'parent'
     );
     return children
-      .map((r: Record<string, unknown>) => {
+      .map((r) => {
         const node = buildNode(r.to_person_id as string);
         if (!node) return null;
         node.descendants = getDescendants(node.id, currentDepth + 1);

@@ -11,7 +11,7 @@ create table stories (
   location text,
   tags text[],
   embedding vector,
-  created_by uuid not null references auth.users(id),
+  created_by uuid not null references profiles(id),
   created_at timestamptz not null default now()
 );
 

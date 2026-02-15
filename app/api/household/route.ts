@@ -1,17 +1,16 @@
-import { createSupabaseServerClient } from '@/lib/supabase-ssr';
-import { supabaseAdmin } from '@/lib/supabase-server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { query, queryOne } from '@/lib/db';
 import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
-  const supabase = createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const session = await getServerSession(authOptions);
 
-  if (!user) {
+  if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  const userId = session.user.id;
   const { name } = await request.json();
 
   if (!name || typeof name !== 'string' || name.trim().length < 2) {
@@ -22,12 +21,10 @@ export async function POST(request: Request) {
   }
 
   // Check if user already has a household
-  const { data: existing } = await supabaseAdmin
-    .from('household_members')
-    .select('id')
-    .eq('user_id', user.id)
-    .eq('status', 'active')
-    .single();
+  const existing = await queryOne(
+    `SELECT id FROM household_members WHERE user_id = $1 AND status = 'active'`,
+    [userId]
+  );
 
   if (existing) {
     return NextResponse.json(
@@ -37,36 +34,32 @@ export async function POST(request: Request) {
   }
 
   // Create household
-  const { data: household, error: hErr } = await supabaseAdmin
-    .from('households')
-    .insert({ name: name.trim(), created_by: user.id })
-    .select('id, name')
-    .single();
+  const household = await queryOne<{ id: string; name: string }>(
+    `INSERT INTO households (name, created_by)
+     VALUES ($1, $2)
+     RETURNING id, name`,
+    [name.trim(), userId]
+  );
 
-  if (hErr || !household) {
+  if (!household) {
     return NextResponse.json(
-      { error: hErr?.message || 'Failed to create household' },
+      { error: 'Failed to create household' },
       { status: 500 }
     );
   }
 
   // Add user as owner
-  const { error: mErr } = await supabaseAdmin
-    .from('household_members')
-    .insert({
-      household_id: household.id,
-      user_id: user.id,
-      role: 'owner',
-      status: 'active',
-    });
-
-  if (mErr) {
-    // Rollback household creation
-    await supabaseAdmin.from('households').delete().eq('id', household.id);
-    return NextResponse.json(
-      { error: mErr.message || 'Failed to add membership' },
-      { status: 500 }
+  try {
+    await query(
+      `INSERT INTO household_members (household_id, user_id, role, status)
+       VALUES ($1, $2, 'owner', 'active')`,
+      [household.id, userId]
     );
+  } catch (err) {
+    // Rollback household creation
+    await query(`DELETE FROM households WHERE id = $1`, [household.id]);
+    const message = err instanceof Error ? err.message : 'Failed to add membership';
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 
   return NextResponse.json({ household });

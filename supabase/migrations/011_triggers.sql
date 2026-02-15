@@ -59,20 +59,4 @@ create trigger check_single_owner
   for each row
   execute function enforce_single_owner();
 
--- Auto-create profile on auth signup
-create or replace function handle_new_user()
-returns trigger
-language plpgsql security definer
-as $$
-begin
-  insert into public.profiles (id, email)
-  values (NEW.id, NEW.email)
-  on conflict (id) do nothing;
-  return NEW;
-end;
-$$;
-
-create trigger on_auth_user_created
-  after insert on auth.users
-  for each row
-  execute function handle_new_user();
+-- NOTE: Profile creation is handled by NextAuth callbacks (no auth.users trigger needed)

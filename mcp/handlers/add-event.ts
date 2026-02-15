@@ -1,4 +1,4 @@
-import { supabaseAdmin } from '@/lib/supabase-server';
+import { query, queryOne } from '@/lib/db';
 
 interface AddEventInput {
   title: string;
@@ -16,30 +16,46 @@ interface AddEventInput {
 export async function addEvent(input: AddEventInput) {
   const { householdId, userId, person_ids, roles, ...eventData } = input;
 
-  const { data: event, error } = await supabaseAdmin
-    .from('events')
-    .insert({
-      ...eventData,
-      household_id: householdId,
-      created_by: userId,
-    })
-    .select()
-    .single();
+  const event = await queryOne<Record<string, unknown>>(
+    `INSERT INTO events (
+       household_id, title, event_type, event_date, event_year,
+       location, description, created_by
+     ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+     RETURNING *`,
+    [
+      householdId,
+      eventData.title,
+      eventData.event_type || null,
+      eventData.event_date || null,
+      eventData.event_year || null,
+      eventData.location || null,
+      eventData.description || null,
+      userId,
+    ]
+  );
 
-  if (error) {
-    throw new Error(`Failed to add event: ${error.message}`);
+  if (!event) {
+    throw new Error('Failed to add event');
   }
 
   // Link persons to the event
   if (person_ids && person_ids.length > 0) {
-    const links = person_ids.map((pid, i) => ({
-      household_id: householdId,
-      event_id: event.id,
-      person_id: pid,
-      role: roles?.[i] || null,
-    }));
+    const valuePlaceholders: string[] = [];
+    const values: unknown[] = [];
+    let paramIndex = 1;
 
-    await supabaseAdmin.from('event_links').insert(links);
+    for (let i = 0; i < person_ids.length; i++) {
+      valuePlaceholders.push(
+        `($${paramIndex++}, $${paramIndex++}, $${paramIndex++}, $${paramIndex++})`
+      );
+      values.push(householdId, event.id, person_ids[i], roles?.[i] || null);
+    }
+
+    await query(
+      `INSERT INTO event_links (household_id, event_id, person_id, role)
+       VALUES ${valuePlaceholders.join(', ')}`,
+      values
+    );
   }
 
   return {

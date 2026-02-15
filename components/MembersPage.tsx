@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase-client';
 
 interface Member {
   id: string;
@@ -29,14 +28,13 @@ export default function MembersPage({ householdId }: MembersPageProps) {
 
   async function loadMembers() {
     setLoading(true);
-    const { data } = await supabase
-      .from('household_members')
-      .select('id, role, status, user_id, created_at, profile:profiles(email, first_name, last_name, avatar_url)')
-      .eq('household_id', householdId)
-      .eq('status', 'active')
-      .order('created_at', { ascending: true });
-
-    setMembers((data as unknown as Member[]) || []);
+    try {
+      const res = await fetch(`/api/data?type=members&householdId=${householdId}`);
+      const json = await res.json();
+      setMembers(json.data || []);
+    } catch {
+      setMembers([]);
+    }
     setLoading(false);
   }
 
@@ -94,7 +92,6 @@ export default function MembersPage({ householdId }: MembersPageProps) {
           </p>
         </div>
 
-        {/* Member list */}
         <div className="space-y-3 mb-10">
           {loading ? (
             <div className="text-center py-12 text-text-400 font-body">Loading members...</div>
@@ -127,7 +124,6 @@ export default function MembersPage({ householdId }: MembersPageProps) {
           )}
         </div>
 
-        {/* Invite section */}
         {members.length < 5 && (
           <div className="rounded-card border border-[rgba(0,245,255,0.08)] bg-card p-6">
             <h3 className="font-display text-lg font-bold text-text-900 mb-1">Invite a Member</h3>

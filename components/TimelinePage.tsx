@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase-client';
 
 interface TimelineEvent {
   household_id: string;
@@ -39,13 +38,13 @@ export default function TimelinePage({ householdId }: TimelinePageProps) {
 
   async function loadTimeline() {
     setLoading(true);
-    const { data } = await supabase
-      .from('family_timeline')
-      .select('*')
-      .eq('household_id', householdId)
-      .order('sort_date', { ascending: true });
-
-    setEvents(data || []);
+    try {
+      const res = await fetch(`/api/data?type=timeline&householdId=${householdId}`);
+      const json = await res.json();
+      setEvents(json.data || []);
+    } catch {
+      setEvents([]);
+    }
     setLoading(false);
   }
 
@@ -55,7 +54,6 @@ export default function TimelinePage({ householdId }: TimelinePageProps) {
     return true;
   });
 
-  // Group by decade
   const decades = new Map<string, TimelineEvent[]>();
   filtered.forEach((e) => {
     const decade = e.event_year ? `${Math.floor(e.event_year / 10) * 10}s` : 'Unknown';
@@ -93,7 +91,6 @@ export default function TimelinePage({ householdId }: TimelinePageProps) {
           <p className="font-body text-text-500 text-sm">{events.length} events across your family history</p>
         </div>
 
-        {/* Filters */}
         <div className="flex gap-3 mb-8">
           <input
             type="number"
@@ -111,9 +108,7 @@ export default function TimelinePage({ householdId }: TimelinePageProps) {
           />
         </div>
 
-        {/* Timeline */}
         <div className="relative">
-          {/* Vertical line */}
           <div className="absolute left-[18px] top-0 bottom-0 w-px bg-[rgba(0,245,255,0.1)]" />
 
           {Array.from(decades.entries()).map(([decade, decadeEvents]) => (

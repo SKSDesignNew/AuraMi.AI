@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { supabase } from '@/lib/supabase-client';
 
 interface SettingsPageProps {
   householdId: string;
@@ -27,15 +26,25 @@ export default function SettingsPage({
     setSaving(true);
     setMessage('');
 
-    const { error } = await supabase
-      .from('households')
-      .update({ name: name.trim() })
-      .eq('id', householdId);
+    try {
+      const res = await fetch('/api/data', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'update_household_name',
+          householdId,
+          name: name.trim(),
+        }),
+      });
 
-    if (error) {
-      setMessage('Failed to update: ' + error.message);
-    } else {
-      setMessage('Household name updated!');
+      if (res.ok) {
+        setMessage('Household name updated!');
+      } else {
+        const data = await res.json();
+        setMessage('Failed to update: ' + (data.error || 'Unknown error'));
+      }
+    } catch {
+      setMessage('Network error. Please try again.');
     }
     setSaving(false);
   }
@@ -113,9 +122,9 @@ export default function SettingsPage({
             <div className="flex items-center gap-3 p-3 rounded-lg bg-bg-alt">
               <span className="text-lg">{'\uD83D\uDD12'}</span>
               <div>
-                <p className="font-body text-sm font-semibold text-text-700">Row-Level Security</p>
+                <p className="font-body text-sm font-semibold text-text-700">Application-Level Security</p>
                 <p className="font-body text-xs text-text-400">
-                  All data is protected with database-level access controls
+                  All data is protected with authentication and authorization controls
                 </p>
               </div>
             </div>
@@ -124,7 +133,7 @@ export default function SettingsPage({
               <div>
                 <p className="font-body text-sm font-semibold text-text-700">Encrypted Storage</p>
                 <p className="font-body text-xs text-text-400">
-                  All photos and documents are stored with encryption at rest
+                  All photos and documents are stored with encryption at rest on AWS S3
                 </p>
               </div>
             </div>

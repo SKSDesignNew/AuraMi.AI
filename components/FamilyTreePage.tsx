@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/lib/supabase-client';
 
 interface Person {
   id: string;
@@ -44,26 +43,25 @@ export default function FamilyTreePage({ householdId }: FamilyTreePageProps) {
 
   async function loadData() {
     setLoading(true);
-    const [personsRes, relsRes] = await Promise.all([
-      supabase
-        .from('persons')
-        .select('id, first_name, last_name, nickname, sex, birth_year, death_date')
-        .eq('household_id', householdId)
-        .order('birth_year', { ascending: true, nullsFirst: false }),
-      supabase
-        .from('relationships')
-        .select('id, from_person_id, to_person_id, relation_type, relation_label')
-        .eq('household_id', householdId),
-    ]);
+    try {
+      const [personsRes, relsRes] = await Promise.all([
+        fetch(`/api/data?type=persons&householdId=${householdId}`),
+        fetch(`/api/data?type=relationships&householdId=${householdId}`),
+      ]);
+      const personsJson = await personsRes.json();
+      const relsJson = await relsRes.json();
 
-    const p = personsRes.data || [];
-    const r = relsRes.data || [];
-    setPersons(p);
-    setRelationships(r);
+      const p = personsJson.data || [];
+      const r = relsJson.data || [];
+      setPersons(p);
+      setRelationships(r);
 
-    // Default root: earliest born person, or first in list
-    if (p.length > 0 && !rootId) {
-      setRootId(p[0].id);
+      if (p.length > 0 && !rootId) {
+        setRootId(p[0].id);
+      }
+    } catch {
+      setPersons([]);
+      setRelationships([]);
     }
     setLoading(false);
   }
@@ -76,7 +74,6 @@ export default function FamilyTreePage({ householdId }: FamilyTreePageProps) {
       const person = persons.find((p) => p.id === personId);
       if (!person) return null;
 
-      // Find spouse
       const spouseRel = relationships.find(
         (r) =>
           r.relation_type === 'spouse' &&
@@ -89,7 +86,6 @@ export default function FamilyTreePage({ householdId }: FamilyTreePageProps) {
         : null;
       const spouse = spouseId ? persons.find((p) => p.id === spouseId) : undefined;
 
-      // Find children (person is parent of child)
       const childRels = relationships.filter(
         (r) => r.relation_type === 'parent' && r.from_person_id === personId
       );
@@ -138,7 +134,6 @@ export default function FamilyTreePage({ householdId }: FamilyTreePageProps) {
   function TreeNodeView({ node, depth = 0 }: { node: TreeNode; depth?: number }) {
     return (
       <div className="flex flex-col items-center">
-        {/* Person + Spouse */}
         <div className="flex items-center gap-2">
           <PersonCard person={node.person} />
           {node.spouse && (
@@ -149,7 +144,6 @@ export default function FamilyTreePage({ householdId }: FamilyTreePageProps) {
           )}
         </div>
 
-        {/* Children */}
         {node.children.length > 0 && (
           <>
             <div className="w-px h-5 bg-[rgba(0,245,255,0.15)]" />
@@ -200,7 +194,6 @@ export default function FamilyTreePage({ householdId }: FamilyTreePageProps) {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-      {/* Header */}
       <div className="px-6 py-4 border-b border-[rgba(0,245,255,0.08)]">
         <div className="flex items-center justify-between mb-3">
           <div>
@@ -218,7 +211,6 @@ export default function FamilyTreePage({ householdId }: FamilyTreePageProps) {
       </div>
 
       <div className="flex flex-1 overflow-hidden">
-        {/* Person list sidebar */}
         <div className="w-56 border-r border-[rgba(0,245,255,0.08)] overflow-y-auto py-3 px-3 space-y-1">
           {filteredPersons.map((p) => (
             <button
@@ -238,7 +230,6 @@ export default function FamilyTreePage({ householdId }: FamilyTreePageProps) {
           ))}
         </div>
 
-        {/* Tree view */}
         <div className="flex-1 overflow-auto p-8">
           {tree ? (
             <div className="flex justify-center">

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase-client';
 
 interface Event {
   id: string;
@@ -32,13 +31,13 @@ export default function EventsPage({ householdId }: EventsPageProps) {
 
   async function loadEvents() {
     setLoading(true);
-    const { data } = await supabase
-      .from('events')
-      .select('id, title, event_type, event_date, event_year, location, description, created_at')
-      .eq('household_id', householdId)
-      .order('event_year', { ascending: false, nullsFirst: true });
-
-    setEvents(data || []);
+    try {
+      const res = await fetch(`/api/data?type=events&householdId=${householdId}`);
+      const json = await res.json();
+      setEvents(json.data || []);
+    } catch {
+      setEvents([]);
+    }
     setLoading(false);
   }
 
@@ -85,7 +84,6 @@ export default function EventsPage({ householdId }: EventsPageProps) {
           <p className="font-body text-text-500 text-sm">{events.length} events recorded</p>
         </div>
 
-        {/* Filters */}
         <div className="flex flex-wrap gap-2 mb-4">
           {eventTypes.map((type) => (
             <button
@@ -110,7 +108,6 @@ export default function EventsPage({ householdId }: EventsPageProps) {
           className="w-full px-4 py-2 rounded-xl border border-[rgba(0,245,255,0.1)] bg-bg text-text-800 placeholder:text-text-400 focus:outline-none focus:ring-2 focus:ring-pink/30 font-body text-sm mb-6"
         />
 
-        {/* Event list */}
         <div className="space-y-3">
           {filtered.map((event) => (
             <div

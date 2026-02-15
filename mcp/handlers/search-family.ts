@@ -1,4 +1,4 @@
-import { supabaseAdmin } from '@/lib/supabase-server';
+import { query } from '@/lib/db';
 import { generateEmbedding } from '@/lib/embeddings';
 
 interface SearchFamilyInput {
@@ -9,33 +9,43 @@ interface SearchFamilyInput {
 }
 
 export async function searchFamily(input: SearchFamilyInput) {
-  const { query, limit = 10, householdId } = input;
+  const { query: searchQuery, limit = 10, householdId } = input;
 
-  const embedding = await generateEmbedding(query);
+  const embedding = await generateEmbedding(searchQuery);
+  const embeddingStr = `[${embedding.join(',')}]`;
 
-  const { data: chunks, error } = await supabaseAdmin.rpc(
-    'search_family_across_households',
-    {
-      input_household_id: householdId,
-      query_embedding: embedding,
-      match_threshold: 0.65,
-      match_count: limit,
-    }
+  // Semantic search across household + linked households
+  const chunks = await query<{
+    id: string;
+    content: string;
+    source_type: string;
+    source_id: string;
+    household_id: string;
+    similarity: number;
+  }>(
+    `SELECT * FROM search_family_across_households($1, $2::vector, $3, $4)`,
+    [householdId, embeddingStr, 0.65, limit]
   );
 
-  if (error) {
-    throw new Error(`Search failed: ${error.message}`);
-  }
-
   if (!chunks || chunks.length === 0) {
-    const { data: persons } = await supabaseAdmin
-      .from('persons')
-      .select('id, first_name, last_name, nickname, birth_year, birth_place, notes')
-      .eq('household_id', householdId)
-      .or(
-        `first_name.ilike.%${query}%,last_name.ilike.%${query}%,nickname.ilike.%${query}%`
-      )
-      .limit(limit);
+    // Fallback: direct text search on persons table
+    const searchPattern = `%${searchQuery}%`;
+    const persons = await query<{
+      id: string;
+      first_name: string;
+      last_name: string;
+      nickname: string | null;
+      birth_year: number | null;
+      birth_place: string | null;
+      notes: string | null;
+    }>(
+      `SELECT id, first_name, last_name, nickname, birth_year, birth_place, notes
+       FROM persons
+       WHERE household_id = $1
+         AND (first_name ILIKE $2 OR last_name ILIKE $2 OR nickname ILIKE $2)
+       LIMIT $3`,
+      [householdId, searchPattern, limit]
+    );
 
     if (persons && persons.length > 0) {
       return {
@@ -57,12 +67,12 @@ export async function searchFamily(input: SearchFamilyInput) {
   }
 
   return {
-    results: chunks.map((c: Record<string, unknown>) => ({
+    results: chunks.map((c) => ({
       content: c.content,
       source_type: c.source_type,
       source_id: c.source_id,
       household_id: c.household_id,
-      similarity: Math.round((c.similarity as number) * 100) / 100,
+      similarity: Math.round(c.similarity * 100) / 100,
     })),
     source: 'semantic_search',
     count: chunks.length,

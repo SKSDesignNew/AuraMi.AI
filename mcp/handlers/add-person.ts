@@ -1,4 +1,4 @@
-import { supabaseAdmin } from '@/lib/supabase-server';
+import { query, queryOne } from '@/lib/db';
 import { generateEmbedding, buildPersonEmbeddingText } from '@/lib/embeddings';
 
 interface AddPersonInput {
@@ -23,57 +23,89 @@ interface AddPersonInput {
 export async function addPerson(input: AddPersonInput) {
   const { householdId, userId, birth_country_code, ...personData } = input;
 
-  let birth_country_id = null;
+  // Resolve country code to country ID
+  let birth_country_id: string | null = null;
   if (birth_country_code) {
-    const { data: country } = await supabaseAdmin
-      .from('countries')
-      .select('id')
-      .eq('code', birth_country_code.toUpperCase())
-      .single();
+    const country = await queryOne<{ id: string }>(
+      `SELECT id FROM countries WHERE code = $1`,
+      [birth_country_code.toUpperCase()]
+    );
     birth_country_id = country?.id || null;
   }
 
+  // Generate embedding
   const embeddingText = buildPersonEmbeddingText(personData);
   const embedding = await generateEmbedding(embeddingText);
+  const embeddingStr = `[${embedding.join(',')}]`;
 
-  const { data: person, error } = await supabaseAdmin
-    .from('persons')
-    .insert({
-      ...personData,
-      household_id: householdId,
+  // Insert person
+  const person = await queryOne<Record<string, unknown>>(
+    `INSERT INTO persons (
+       household_id, first_name, last_name, middle_name, nickname,
+       sex, birth_year, birth_month, birth_day, birth_date,
+       birth_city, birth_place, birth_country_id, death_date,
+       notes, embedding, created_by
+     ) VALUES (
+       $1, $2, $3, $4, $5,
+       $6, $7, $8, $9, $10,
+       $11, $12, $13, $14,
+       $15, $16::vector, $17
+     ) RETURNING *`,
+    [
+      householdId,
+      personData.first_name,
+      personData.last_name,
+      personData.middle_name || null,
+      personData.nickname || null,
+      personData.sex || null,
+      personData.birth_year || null,
+      personData.birth_month || null,
+      personData.birth_day || null,
+      personData.birth_date || null,
+      personData.birth_city || null,
+      personData.birth_place || null,
       birth_country_id,
-      embedding,
-      created_by: userId,
-    })
-    .select()
-    .single();
+      personData.death_date || null,
+      personData.notes || null,
+      embeddingStr,
+      userId,
+    ]
+  );
 
-  if (error) {
-    throw new Error(`Failed to add person: ${error.message}`);
+  if (!person) {
+    throw new Error('Failed to add person');
   }
 
-  const { data: doc } = await supabaseAdmin
-    .from('documents')
-    .insert({
-      household_id: householdId,
-      title: `${person.first_name} ${person.last_name}`,
-      doc_type: 'person_bio',
-      source_table: 'persons',
-      source_id: person.id,
-    })
-    .select('id')
-    .single();
+  // Create document + chunk for RAG pipeline
+  const doc = await queryOne<{ id: string }>(
+    `INSERT INTO documents (household_id, title, doc_type, source_table, source_id)
+     VALUES ($1, $2, $3, $4, $5)
+     RETURNING id`,
+    [
+      householdId,
+      `${person.first_name} ${person.last_name}`,
+      'person_bio',
+      'persons',
+      person.id,
+    ]
+  );
 
   if (doc) {
-    await supabaseAdmin.from('document_chunks').insert({
-      household_id: householdId,
-      document_id: doc.id,
-      chunk_index: 0,
-      content: embeddingText,
-      token_count: Math.ceil(embeddingText.length / 4),
-      metadata: { person_id: person.id, type: 'person_bio' },
-      embedding,
-    });
+    await queryOne(
+      `INSERT INTO document_chunks (
+         household_id, document_id, chunk_index, content,
+         token_count, metadata, embedding
+       ) VALUES ($1, $2, $3, $4, $5, $6, $7::vector)`,
+      [
+        householdId,
+        doc.id,
+        0,
+        embeddingText,
+        Math.ceil(embeddingText.length / 4),
+        JSON.stringify({ person_id: person.id, type: 'person_bio' }),
+        embeddingStr,
+      ]
+    );
   }
 
   return {

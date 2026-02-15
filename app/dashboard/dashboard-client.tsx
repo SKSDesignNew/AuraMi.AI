@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 import Sidebar from '@/components/Sidebar';
 import ChatWindow from '@/components/ChatWindow';
 import MembersPage from '@/components/MembersPage';
@@ -11,7 +11,6 @@ import EventsPage from '@/components/EventsPage';
 import PhotosPage from '@/components/PhotosPage';
 import StoriesPage from '@/components/StoriesPage';
 import SettingsPage from '@/components/SettingsPage';
-import { supabase } from '@/lib/supabase-client';
 
 interface DashboardClientProps {
   userId: string;
@@ -27,11 +26,9 @@ export default function DashboardClient({
   householdName,
 }: DashboardClientProps) {
   const [activePage, setActivePage] = useState('chat');
-  const router = useRouter();
 
   async function handleSignOut() {
-    await supabase.auth.signOut();
-    router.push('/login');
+    await signOut({ callbackUrl: '/login' });
   }
 
   function renderPage() {

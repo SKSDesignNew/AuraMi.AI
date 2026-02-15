@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '@/lib/supabase-client';
 
 interface Story {
   id: string;
@@ -30,13 +29,13 @@ export default function StoriesPage({ householdId }: StoriesPageProps) {
 
   async function loadStories() {
     setLoading(true);
-    const { data } = await supabase
-      .from('stories')
-      .select('id, title, content, era, location, tags, created_at, narrator:persons!stories_narrator_id_fkey(first_name, last_name)')
-      .eq('household_id', householdId)
-      .order('created_at', { ascending: false });
-
-    setStories((data as unknown as Story[]) || []);
+    try {
+      const res = await fetch(`/api/data?type=stories&householdId=${householdId}`);
+      const json = await res.json();
+      setStories(json.data || []);
+    } catch {
+      setStories([]);
+    }
     setLoading(false);
   }
 
@@ -73,7 +72,6 @@ export default function StoriesPage({ householdId }: StoriesPageProps) {
     );
   }
 
-  // Reading view
   if (selectedStory) {
     return (
       <div className="flex-1 overflow-y-auto px-6 py-8">
