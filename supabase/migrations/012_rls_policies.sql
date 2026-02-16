@@ -1,13 +1,13 @@
 -- 012_rls_policies.sql
--- Row Level Security policies for all tables
+-- NOTE: On AWS RDS, access control is handled at the application level
+-- via NextAuth session checks and household_id scoping in queries.
+-- RLS policies below are optional and can be enabled if using
+-- multiple database roles (e.g., a restricted app role).
 
--- Enable RLS on all tables
-alter table households enable row level security;
-alter table household_members enable row level security;
-alter table profiles enable row level security;
-alter table invitations enable row level security;
-alter table household_links enable row level security;
-alter table countries enable row level security;
+-- Uncomment the following if you want RLS on RDS:
+-- alter table households enable row level security;
+-- alter table household_members enable row level security;
+-- alter table profiles enable row level security;
 alter table persons enable row level security;
 alter table relationships enable row level security;
 alter table events enable row level security;

@@ -1,4 +1,4 @@
-import { supabaseAdmin } from '@/lib/supabase-server';
+import { query } from '@/lib/db';
 
 interface GetEventsInput {
   person_id?: string;
@@ -14,48 +14,71 @@ interface GetEventsInput {
 export async function getEvents(input: GetEventsInput) {
   const { householdId, person_id, event_type, year_from, year_to, keyword, limit = 20 } = input;
 
-  let query = supabaseAdmin
-    .from('events')
-    .select('*, event_links(person_id, role, person:persons(first_name, last_name))')
-    .eq('household_id', householdId)
-    .order('event_date', { ascending: false, nullsFirst: false })
-    .limit(limit);
+  // Build dynamic WHERE clause
+  const conditions: string[] = ['e.household_id = $1'];
+  const values: unknown[] = [householdId];
+  let paramIndex = 2;
 
   if (event_type) {
-    query = query.eq('event_type', event_type);
+    conditions.push(`e.event_type = $${paramIndex++}`);
+    values.push(event_type);
   }
 
   if (year_from) {
-    query = query.gte('event_year', year_from);
+    conditions.push(`e.event_year >= $${paramIndex++}`);
+    values.push(year_from);
   }
 
   if (year_to) {
-    query = query.lte('event_year', year_to);
+    conditions.push(`e.event_year <= $${paramIndex++}`);
+    values.push(year_to);
   }
 
   if (keyword) {
-    query = query.or(`title.ilike.%${keyword}%,description.ilike.%${keyword}%`);
+    const searchPattern = `%${keyword}%`;
+    conditions.push(`(e.title ILIKE $${paramIndex} OR e.description ILIKE $${paramIndex})`);
+    values.push(searchPattern);
+    paramIndex++;
   }
 
-  const { data: events, error } = await query;
-
-  if (error) {
-    throw new Error(`Failed to get events: ${error.message}`);
-  }
-
-  let results = events || [];
-
-  // Filter by person if specified
   if (person_id) {
-    results = results.filter((e: Record<string, unknown>) =>
-      (e.event_links as Array<Record<string, unknown>>)?.some(
-        (l) => l.person_id === person_id
-      )
-    );
+    conditions.push(`EXISTS (
+      SELECT 1 FROM event_links el WHERE el.event_id = e.id AND el.person_id = $${paramIndex}
+    )`);
+    values.push(person_id);
+    paramIndex++;
   }
+
+  values.push(limit);
+  const limitParam = paramIndex;
+
+  const events = await query<Record<string, unknown>>(
+    `SELECT e.*,
+            COALESCE(
+              json_agg(
+                json_build_object(
+                  'person_id', el.person_id,
+                  'role', el.role,
+                  'name', CASE WHEN p.id IS NOT NULL
+                    THEN p.first_name || ' ' || p.last_name
+                    ELSE NULL
+                  END
+                )
+              ) FILTER (WHERE el.id IS NOT NULL),
+              '[]'::json
+            ) AS people
+     FROM events e
+     LEFT JOIN event_links el ON el.event_id = e.id
+     LEFT JOIN persons p ON p.id = el.person_id
+     WHERE ${conditions.join(' AND ')}
+     GROUP BY e.id
+     ORDER BY e.event_date DESC NULLS LAST
+     LIMIT $${limitParam}`,
+    values
+  );
 
   return {
-    events: results.map((e: Record<string, unknown>) => ({
+    events: events.map((e) => ({
       id: e.id,
       title: e.title,
       event_type: e.event_type,
@@ -63,14 +86,8 @@ export async function getEvents(input: GetEventsInput) {
       event_year: e.event_year,
       location: e.location,
       description: e.description,
-      people: (e.event_links as Array<Record<string, unknown>>)?.map((l) => ({
-        person_id: l.person_id,
-        role: l.role,
-        name: l.person
-          ? `${(l.person as Record<string, string>).first_name} ${(l.person as Record<string, string>).last_name}`
-          : null,
-      })),
+      people: e.people,
     })),
-    count: results.length,
+    count: events.length,
   };
 }

@@ -8,7 +8,7 @@ create table ingestion_jobs (
   source_asset_id uuid references assets(id),
   status text not null default 'queued' check (status in ('queued', 'processing', 'completed', 'failed')),
   error text,
-  created_by uuid not null references auth.users(id),
+  created_by uuid not null references profiles(id),
   created_at timestamptz not null default now(),
   completed_at timestamptz
 );
@@ -20,7 +20,7 @@ create table household_sheets (
   template_version text default 'v1',
   sync_enabled boolean not null default true,
   last_synced_at timestamptz,
-  created_by uuid not null references auth.users(id),
+  created_by uuid not null references profiles(id),
   created_at timestamptz not null default now(),
   primary key (household_id, sheet_id)
 );

@@ -16,7 +16,7 @@ create table assets (
   linked_person_id uuid references persons(id),
   checksum text,
   embedding vector,
-  created_by uuid not null references auth.users(id),
+  created_by uuid not null references profiles(id),
   created_at timestamptz not null default now()
 );
 

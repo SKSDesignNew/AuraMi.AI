@@ -1,4 +1,4 @@
-import { supabaseAdmin } from '@/lib/supabase-server';
+import { query, queryOne } from '@/lib/db';
 import { anthropic } from '@/lib/claude';
 
 interface GenerateBioInput {
@@ -10,37 +10,51 @@ interface GenerateBioInput {
 export async function generateBio(input: GenerateBioInput) {
   const { person_id, householdId } = input;
 
-  // Gather all data about this person
-  const [personRes, relsRes, eventsRes, storiesRes] = await Promise.all([
-    supabaseAdmin
-      .from('persons')
-      .select('*')
-      .eq('id', person_id)
-      .eq('household_id', householdId)
-      .single(),
-    supabaseAdmin
-      .from('relationships')
-      .select('*, from_person:persons!relationships_from_person_id_fkey(first_name, last_name), to_person:persons!relationships_to_person_id_fkey(first_name, last_name)')
-      .eq('household_id', householdId)
-      .or(`from_person_id.eq.${person_id},to_person_id.eq.${person_id}`),
-    supabaseAdmin
-      .from('event_links')
-      .select('role, event:events(title, event_type, event_date, event_year, location, description)')
-      .eq('person_id', person_id),
-    supabaseAdmin
-      .from('story_persons')
-      .select('mention_type, story:stories(title, content, era, location)')
-      .eq('person_id', person_id),
+  // Gather all data about this person in parallel
+  const [person, relationships, events, stories] = await Promise.all([
+    queryOne<Record<string, unknown>>(
+      `SELECT * FROM persons WHERE id = $1 AND household_id = $2`,
+      [person_id, householdId]
+    ),
+    query<Record<string, unknown>>(
+      `SELECT r.*,
+              json_build_object('first_name', fp.first_name, 'last_name', fp.last_name) AS from_person,
+              json_build_object('first_name', tp.first_name, 'last_name', tp.last_name) AS to_person
+       FROM relationships r
+       JOIN persons fp ON fp.id = r.from_person_id
+       JOIN persons tp ON tp.id = r.to_person_id
+       WHERE r.household_id = $1
+         AND (r.from_person_id = $2 OR r.to_person_id = $2)`,
+      [householdId, person_id]
+    ),
+    query<Record<string, unknown>>(
+      `SELECT el.role,
+              json_build_object(
+                'title', e.title, 'event_type', e.event_type,
+                'event_date', e.event_date, 'event_year', e.event_year,
+                'location', e.location, 'description', e.description
+              ) AS event
+       FROM event_links el
+       JOIN events e ON e.id = el.event_id
+       WHERE el.person_id = $1`,
+      [person_id]
+    ),
+    query<Record<string, unknown>>(
+      `SELECT sp.mention_type,
+              json_build_object(
+                'title', s.title, 'content', s.content,
+                'era', s.era, 'location', s.location
+              ) AS story
+       FROM story_persons sp
+       JOIN stories s ON s.id = sp.story_id
+       WHERE sp.person_id = $1`,
+      [person_id]
+    ),
   ]);
 
-  if (personRes.error) {
-    throw new Error(`Person not found: ${personRes.error.message}`);
+  if (!person) {
+    throw new Error('Person not found');
   }
-
-  const person = personRes.data;
-  const relationships = relsRes.data || [];
-  const events = eventsRes.data || [];
-  const stories = storiesRes.data || [];
 
   const dataContext = JSON.stringify(
     { person, relationships, events, stories },

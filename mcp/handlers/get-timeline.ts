@@ -1,4 +1,4 @@
-import { supabaseAdmin } from '@/lib/supabase-server';
+import { query } from '@/lib/db';
 
 interface GetTimelineInput {
   year_from?: number;
@@ -10,28 +10,30 @@ interface GetTimelineInput {
 export async function getTimeline(input: GetTimelineInput) {
   const { householdId, year_from, year_to } = input;
 
-  let query = supabaseAdmin
-    .from('family_timeline')
-    .select('*')
-    .eq('household_id', householdId)
-    .order('sort_date', { ascending: true });
+  const conditions: string[] = ['household_id = $1'];
+  const values: unknown[] = [householdId];
+  let paramIndex = 2;
 
   if (year_from) {
-    query = query.gte('event_year', year_from);
+    conditions.push(`event_year >= $${paramIndex++}`);
+    values.push(year_from);
   }
 
   if (year_to) {
-    query = query.lte('event_year', year_to);
+    conditions.push(`event_year <= $${paramIndex++}`);
+    values.push(year_to);
   }
 
-  const { data: timeline, error } = await query;
-
-  if (error) {
-    throw new Error(`Failed to get timeline: ${error.message}`);
-  }
+  const timeline = await query<Record<string, unknown>>(
+    `SELECT *
+     FROM family_timeline
+     WHERE ${conditions.join(' AND ')}
+     ORDER BY sort_date ASC`,
+    values
+  );
 
   return {
-    timeline: (timeline || []).map((t: Record<string, unknown>) => ({
+    timeline: timeline.map((t) => ({
       year: t.event_year,
       date: t.sort_date,
       title: t.title,
@@ -40,6 +42,6 @@ export async function getTimeline(input: GetTimelineInput) {
       description: t.description,
       people: t.people_involved,
     })),
-    count: timeline?.length || 0,
+    count: timeline.length,
   };
 }

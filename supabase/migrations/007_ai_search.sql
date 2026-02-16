@@ -27,7 +27,7 @@ create table document_chunks (
 create table chat_sessions (
   id uuid primary key default uuid_generate_v4(),
   household_id uuid not null references households(id) on delete cascade,
-  created_by uuid not null references auth.users(id),
+  created_by uuid not null references profiles(id),
   title text,
   created_at timestamptz not null default now()
 );

@@ -1,10 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 import Sidebar from '@/components/Sidebar';
 import ChatWindow from '@/components/ChatWindow';
-import { supabase } from '@/lib/supabase-client';
+import MembersPage from '@/components/MembersPage';
+import FamilyTreePage from '@/components/FamilyTreePage';
+import TimelinePage from '@/components/TimelinePage';
+import EventsPage from '@/components/EventsPage';
+import PhotosPage from '@/components/PhotosPage';
+import StoriesPage from '@/components/StoriesPage';
+import SettingsPage from '@/components/SettingsPage';
 
 interface DashboardClientProps {
   userId: string;
@@ -20,20 +26,48 @@ export default function DashboardClient({
   householdName,
 }: DashboardClientProps) {
   const [activePage, setActivePage] = useState('chat');
-  const router = useRouter();
 
   async function handleSignOut() {
-    await supabase.auth.signOut();
-    router.push('/login');
+    await signOut({ callbackUrl: '/login' });
+  }
+
+  function renderPage() {
+    switch (activePage) {
+      case 'chat':
+        return <ChatWindow householdId={householdId} userId={userId} />;
+      case 'tree':
+        return <FamilyTreePage householdId={householdId} />;
+      case 'timeline':
+        return <TimelinePage householdId={householdId} />;
+      case 'members':
+        return <MembersPage householdId={householdId} />;
+      case 'events':
+        return <EventsPage householdId={householdId} />;
+      case 'photos':
+        return <PhotosPage householdId={householdId} userId={userId} />;
+      case 'stories':
+        return <StoriesPage householdId={householdId} />;
+      case 'settings':
+        return (
+          <SettingsPage
+            householdId={householdId}
+            householdName={householdName}
+            userId={userId}
+            userEmail={userEmail}
+          />
+        );
+      default:
+        return <ChatWindow householdId={householdId} userId={userId} />;
+    }
   }
 
   return (
     <div className="flex h-screen bg-bg">
       <Sidebar active={activePage} onNavigate={setActivePage} />
 
-      <main className="flex-1 flex flex-col">
+      <main className="flex-1 flex flex-col overflow-hidden">
         {/* Top bar */}
-        <header className="glass flex items-center justify-between px-6 py-3">
+        <header className="glass flex items-center justify-between px-6 py-3 flex-shrink-0">
           <div>
             <h2 className="font-display text-lg font-bold text-text-900">
               {householdName}
@@ -51,22 +85,7 @@ export default function DashboardClient({
         </header>
 
         {/* Content */}
-        {activePage === 'chat' && (
-          <ChatWindow householdId={householdId} userId={userId} />
-        )}
-
-        {activePage !== 'chat' && (
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center">
-              <h2 className="font-display text-2xl font-bold text-text-800 mb-2 capitalize">
-                {activePage.replace('-', ' ')}
-              </h2>
-              <p className="text-text-500 font-body">
-                This section is coming soon.
-              </p>
-            </div>
-          </div>
-        )}
+        {renderPage()}
       </main>
     </div>
   );

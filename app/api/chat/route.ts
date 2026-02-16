@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { supabaseAdmin } from '@/lib/supabase-server';
+import { query, queryOne } from '@/lib/db';
 import { originTools } from '@/mcp/tools';
 import { executeToolCall } from '@/mcp/index';
 
@@ -44,24 +44,26 @@ export async function POST(request: Request) {
   // 1. Get or create chat session
   let session = sessionId;
   if (!session) {
-    const { data } = await supabaseAdmin
-      .from('chat_sessions')
-      .insert({ household_id: householdId, created_by: userId })
-      .select('id')
-      .single();
-    session = data?.id;
+    const row = await queryOne<{ id: string }>(
+      `INSERT INTO chat_sessions (household_id, created_by)
+       VALUES ($1, $2)
+       RETURNING id`,
+      [householdId, userId]
+    );
+    session = row?.id;
   }
 
   // 2. Load chat history
-  const { data: history } = await supabaseAdmin
-    .from('chat_messages')
-    .select('role, content')
-    .eq('session_id', session)
-    .order('created_at', { ascending: true })
-    .limit(50);
+  const history = await query<{ role: string; content: string }>(
+    `SELECT role, content FROM chat_messages
+     WHERE session_id = $1
+     ORDER BY created_at ASC
+     LIMIT 50`,
+    [session]
+  );
 
   const messages: Anthropic.MessageParam[] = [
-    ...(history || []).map((m) => ({
+    ...history.map((m) => ({
       role: m.role as 'user' | 'assistant',
       content: m.content,
     })),
@@ -69,19 +71,17 @@ export async function POST(request: Request) {
   ];
 
   // 3. Save user message
-  await supabaseAdmin.from('chat_messages').insert({
-    household_id: householdId,
-    session_id: session,
-    role: 'user',
-    content: message,
-  });
+  await query(
+    `INSERT INTO chat_messages (household_id, session_id, role, content)
+     VALUES ($1, $2, $3, $4)`,
+    [householdId, session, 'user', message]
+  );
 
   // 4. Get household name for system prompt
-  const { data: household } = await supabaseAdmin
-    .from('households')
-    .select('name')
-    .eq('id', householdId)
-    .single();
+  const household = await queryOne<{ name: string }>(
+    `SELECT name FROM households WHERE id = $1`,
+    [householdId]
+  );
 
   const systemPrompt = buildSystemPrompt(household?.name);
 
@@ -144,12 +144,11 @@ export async function POST(request: Request) {
     .join('\n');
 
   // 8. Save assistant response
-  await supabaseAdmin.from('chat_messages').insert({
-    household_id: householdId,
-    session_id: session,
-    role: 'assistant',
-    content: assistantMessage,
-  });
+  await query(
+    `INSERT INTO chat_messages (household_id, session_id, role, content)
+     VALUES ($1, $2, $3, $4)`,
+    [householdId, session, 'assistant', assistantMessage]
+  );
 
   // 9. Return response
   return Response.json({

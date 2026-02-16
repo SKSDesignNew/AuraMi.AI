@@ -11,7 +11,7 @@ create table events (
   location text,
   description text,
   external_ref text,
-  created_by uuid not null references auth.users(id),
+  created_by uuid not null references profiles(id),
   created_at timestamptz not null default now()
 );
 

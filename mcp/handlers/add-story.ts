@@ -1,4 +1,4 @@
-import { supabaseAdmin } from '@/lib/supabase-server';
+import { query, queryOne } from '@/lib/db';
 import { generateEmbedding } from '@/lib/embeddings';
 
 interface AddStoryInput {
@@ -18,56 +18,73 @@ export async function addStory(input: AddStoryInput) {
 
   const embeddingText = `${storyData.title}. ${storyData.content}`;
   const embedding = await generateEmbedding(embeddingText);
+  const embeddingStr = `[${embedding.join(',')}]`;
 
-  const { data: story, error } = await supabaseAdmin
-    .from('stories')
-    .insert({
-      ...storyData,
-      household_id: householdId,
-      embedding,
-      created_by: userId,
-    })
-    .select()
-    .single();
+  const story = await queryOne<Record<string, unknown>>(
+    `INSERT INTO stories (
+       household_id, title, content, narrator_id, era,
+       location, tags, embedding, created_by
+     ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8::vector, $9)
+     RETURNING *`,
+    [
+      householdId,
+      storyData.title,
+      storyData.content,
+      storyData.narrator_id || null,
+      storyData.era || null,
+      storyData.location || null,
+      storyData.tags || null,
+      embeddingStr,
+      userId,
+    ]
+  );
 
-  if (error) {
-    throw new Error(`Failed to add story: ${error.message}`);
+  if (!story) {
+    throw new Error('Failed to add story');
   }
 
   // Link persons to the story
   if (person_ids && person_ids.length > 0) {
-    const links = person_ids.map((pid) => ({
-      story_id: story.id,
-      person_id: pid,
-      mention_type: 'mentioned',
-    }));
+    const valuePlaceholders: string[] = [];
+    const values: unknown[] = [];
+    let paramIndex = 1;
 
-    await supabaseAdmin.from('story_persons').insert(links);
+    for (const pid of person_ids) {
+      valuePlaceholders.push(`($${paramIndex++}, $${paramIndex++}, $${paramIndex++})`);
+      values.push(story.id, pid, 'mentioned');
+    }
+
+    await query(
+      `INSERT INTO story_persons (story_id, person_id, mention_type)
+       VALUES ${valuePlaceholders.join(', ')}`,
+      values
+    );
   }
 
   // Create document + chunk for RAG
-  const { data: doc } = await supabaseAdmin
-    .from('documents')
-    .insert({
-      household_id: householdId,
-      title: story.title,
-      doc_type: 'story',
-      source_table: 'stories',
-      source_id: story.id,
-    })
-    .select('id')
-    .single();
+  const doc = await queryOne<{ id: string }>(
+    `INSERT INTO documents (household_id, title, doc_type, source_table, source_id)
+     VALUES ($1, $2, $3, $4, $5)
+     RETURNING id`,
+    [householdId, story.title, 'story', 'stories', story.id]
+  );
 
   if (doc) {
-    await supabaseAdmin.from('document_chunks').insert({
-      household_id: householdId,
-      document_id: doc.id,
-      chunk_index: 0,
-      content: embeddingText,
-      token_count: Math.ceil(embeddingText.length / 4),
-      metadata: { story_id: story.id, type: 'story' },
-      embedding,
-    });
+    await queryOne(
+      `INSERT INTO document_chunks (
+         household_id, document_id, chunk_index, content,
+         token_count, metadata, embedding
+       ) VALUES ($1, $2, $3, $4, $5, $6, $7::vector)`,
+      [
+        householdId,
+        doc.id,
+        0,
+        embeddingText,
+        Math.ceil(embeddingText.length / 4),
+        JSON.stringify({ story_id: story.id, type: 'story' }),
+        embeddingStr,
+      ]
+    );
   }
 
   return {

@@ -1,11 +1,23 @@
 -- 002_identity_access.sql
--- Households, members, profiles, invitations, household_links
+-- Profiles, households, members, invitations, household_links
+-- NOTE: Profiles table replaces Supabase auth.users as the user reference
+
+-- Profiles (user accounts — managed by NextAuth + Cognito)
+create table profiles (
+  id uuid primary key default uuid_generate_v4(),
+  email text unique not null,
+  first_name text,
+  last_name text,
+  avatar_url text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
 
 -- Households
 create table households (
   id uuid primary key default uuid_generate_v4(),
   name text not null,
-  created_by uuid not null references auth.users(id),
+  created_by uuid not null references profiles(id),
   created_at timestamptz not null default now()
 );
 
@@ -13,22 +25,11 @@ create table households (
 create table household_members (
   id uuid primary key default uuid_generate_v4(),
   household_id uuid not null references households(id) on delete cascade,
-  user_id uuid not null references auth.users(id),
+  user_id uuid not null references profiles(id),
   role text not null check (role in ('owner', 'member')),
   status text not null default 'active' check (status in ('active', 'suspended', 'removed')),
   created_at timestamptz not null default now(),
   unique (household_id, user_id)
-);
-
--- Profiles (extended user data)
-create table profiles (
-  id uuid primary key references auth.users(id),
-  email text,
-  first_name text,
-  last_name text,
-  avatar_url text,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
 );
 
 -- Invitations
@@ -41,9 +42,9 @@ create table invitations (
   link_person_id uuid, -- FK added after persons table created
   token_hash text not null,
   expires_at timestamptz not null,
-  accepted_by uuid references auth.users(id),
+  accepted_by uuid references profiles(id),
   accepted_at timestamptz,
-  created_by uuid not null references auth.users(id),
+  created_by uuid not null references profiles(id),
   created_at timestamptz not null default now()
 );
 
@@ -55,7 +56,7 @@ create table household_links (
   person_a uuid, -- FK added after persons table created
   person_b uuid, -- FK added after persons table created
   status text not null default 'pending' check (status in ('pending', 'active', 'revoked')),
-  created_by uuid not null references auth.users(id),
+  created_by uuid not null references profiles(id),
   created_at timestamptz not null default now(),
   activated_at timestamptz,
   constraint no_self_link check (household_a <> household_b)

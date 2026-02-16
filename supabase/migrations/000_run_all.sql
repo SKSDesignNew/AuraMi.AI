@@ -5,13 +5,24 @@ create extension if not exists vector;
 create extension if not exists "uuid-ossp";
 create extension if not exists pg_trgm;
 -- 002_identity_access.sql
--- Households, members, profiles, invitations, household_links
+-- Profiles, households, members, invitations, household_links
+
+-- Profiles (user accounts — managed by NextAuth + Cognito)
+create table profiles (
+  id uuid primary key default uuid_generate_v4(),
+  email text unique not null,
+  first_name text,
+  last_name text,
+  avatar_url text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
 
 -- Households
 create table households (
   id uuid primary key default uuid_generate_v4(),
   name text not null,
-  created_by uuid not null references auth.users(id),
+  created_by uuid not null references profiles(id),
   created_at timestamptz not null default now()
 );
 
@@ -19,22 +30,11 @@ create table households (
 create table household_members (
   id uuid primary key default uuid_generate_v4(),
   household_id uuid not null references households(id) on delete cascade,
-  user_id uuid not null references auth.users(id),
+  user_id uuid not null references profiles(id),
   role text not null check (role in ('owner', 'member')),
   status text not null default 'active' check (status in ('active', 'suspended', 'removed')),
   created_at timestamptz not null default now(),
   unique (household_id, user_id)
-);
-
--- Profiles (extended user data)
-create table profiles (
-  id uuid primary key references auth.users(id),
-  email text,
-  first_name text,
-  last_name text,
-  avatar_url text,
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
 );
 
 -- Invitations
@@ -47,9 +47,9 @@ create table invitations (
   link_person_id uuid, -- FK added after persons table created
   token_hash text not null,
   expires_at timestamptz not null,
-  accepted_by uuid references auth.users(id),
+  accepted_by uuid references profiles(id),
   accepted_at timestamptz,
-  created_by uuid not null references auth.users(id),
+  created_by uuid not null references profiles(id),
   created_at timestamptz not null default now()
 );
 
@@ -61,7 +61,7 @@ create table household_links (
   person_a uuid, -- FK added after persons table created
   person_b uuid, -- FK added after persons table created
   status text not null default 'pending' check (status in ('pending', 'active', 'revoked')),
-  created_by uuid not null references auth.users(id),
+  created_by uuid not null references profiles(id),
   created_at timestamptz not null default now(),
   activated_at timestamptz,
   constraint no_self_link check (household_a <> household_b)
@@ -102,7 +102,7 @@ create table persons (
   notes text,
   primary_photo_asset_id uuid, -- FK added after assets table created
   embedding vector,
-  created_by uuid not null references auth.users(id),
+  created_by uuid not null references profiles(id),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -147,7 +147,7 @@ create table events (
   location text,
   description text,
   external_ref text,
-  created_by uuid not null references auth.users(id),
+  created_by uuid not null references profiles(id),
   created_at timestamptz not null default now()
 );
 
@@ -177,7 +177,7 @@ create table assets (
   linked_person_id uuid references persons(id),
   checksum text,
   embedding vector,
-  created_by uuid not null references auth.users(id),
+  created_by uuid not null references profiles(id),
   created_at timestamptz not null default now()
 );
 
@@ -215,7 +215,7 @@ create table stories (
   location text,
   tags text[],
   embedding vector,
-  created_by uuid not null references auth.users(id),
+  created_by uuid not null references profiles(id),
   created_at timestamptz not null default now()
 );
 
@@ -254,7 +254,7 @@ create table document_chunks (
 create table chat_sessions (
   id uuid primary key default uuid_generate_v4(),
   household_id uuid not null references households(id) on delete cascade,
-  created_by uuid not null references auth.users(id),
+  created_by uuid not null references profiles(id),
   title text,
   created_at timestamptz not null default now()
 );
@@ -278,7 +278,7 @@ create table ingestion_jobs (
   source_asset_id uuid references assets(id),
   status text not null default 'queued' check (status in ('queued', 'processing', 'completed', 'failed')),
   error text,
-  created_by uuid not null references auth.users(id),
+  created_by uuid not null references profiles(id),
   created_at timestamptz not null default now(),
   completed_at timestamptz
 );
@@ -290,7 +290,7 @@ create table household_sheets (
   template_version text default 'v1',
   sync_enabled boolean not null default true,
   last_synced_at timestamptz,
-  created_by uuid not null references auth.users(id),
+  created_by uuid not null references profiles(id),
   created_at timestamptz not null default now(),
   primary key (household_id, sheet_id)
 );
@@ -574,10 +574,7 @@ begin
 end;
 $$;
 
-create trigger on_auth_user_created
-  after insert on auth.users
-  for each row
-  execute function handle_new_user();
+-- NOTE: Profile creation is handled by NextAuth callbacks (no auth.users trigger needed)
 -- 012_rls_policies.sql
 -- Row Level Security policies for all tables
 

@@ -1,4 +1,4 @@
-import { supabaseAdmin } from '@/lib/supabase-server';
+import { queryOne } from '@/lib/db';
 
 interface AddRelationshipInput {
   from_person_id: string;
@@ -13,24 +13,41 @@ interface AddRelationshipInput {
 export async function addRelationship(input: AddRelationshipInput) {
   const { householdId, userId, ...relData } = input;
 
-  const { data: relationship, error } = await supabaseAdmin
-    .from('relationships')
-    .insert({
-      ...relData,
-      household_id: householdId,
-      source: 'manual',
-    })
-    .select(
-      '*, from_person:persons!relationships_from_person_id_fkey(first_name, last_name), to_person:persons!relationships_to_person_id_fkey(first_name, last_name)'
-    )
-    .single();
+  // Insert relationship and fetch related person names in one go
+  const relationship = await queryOne<Record<string, unknown>>(
+    `INSERT INTO relationships (
+       household_id, from_person_id, to_person_id, relation_type,
+       relation_label, start_date, source
+     ) VALUES ($1, $2, $3, $4, $5, $6, $7)
+     RETURNING *`,
+    [
+      householdId,
+      relData.from_person_id,
+      relData.to_person_id,
+      relData.relation_type,
+      relData.relation_label || null,
+      relData.start_date || null,
+      'manual',
+    ]
+  );
 
-  if (error) {
-    throw new Error(`Failed to add relationship: ${error.message}`);
+  if (!relationship) {
+    throw new Error('Failed to add relationship');
   }
 
-  const fromName = `${relationship.from_person.first_name} ${relationship.from_person.last_name}`;
-  const toName = `${relationship.to_person.first_name} ${relationship.to_person.last_name}`;
+  // Fetch person names
+  const fromPerson = await queryOne<{ first_name: string; last_name: string }>(
+    `SELECT first_name, last_name FROM persons WHERE id = $1`,
+    [relData.from_person_id]
+  );
+
+  const toPerson = await queryOne<{ first_name: string; last_name: string }>(
+    `SELECT first_name, last_name FROM persons WHERE id = $1`,
+    [relData.to_person_id]
+  );
+
+  const fromName = fromPerson ? `${fromPerson.first_name} ${fromPerson.last_name}` : 'Unknown';
+  const toName = toPerson ? `${toPerson.first_name} ${toPerson.last_name}` : 'Unknown';
 
   return {
     success: true,
