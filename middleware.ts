@@ -7,7 +7,8 @@ export async function middleware(request: NextRequest) {
   const isPublicPath =
     request.nextUrl.pathname === '/' ||
     request.nextUrl.pathname === '/login' ||
-    request.nextUrl.pathname.startsWith('/api/auth');
+    request.nextUrl.pathname.startsWith('/api/auth') ||
+    request.nextUrl.pathname === '/api/health';
 
   if (!token && !isPublicPath) {
     const url = request.nextUrl.clone();

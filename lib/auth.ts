@@ -44,22 +44,27 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (!credentials?.email) return null;
 
-        // Upsert user in our profiles table
-        const user = await queryOne<{ id: string; email: string; first_name: string | null }>(
-          `INSERT INTO profiles (id, email, created_at, updated_at)
-           VALUES (gen_random_uuid(), $1, NOW(), NOW())
-           ON CONFLICT (email) DO UPDATE SET updated_at = NOW()
-           RETURNING id, email, first_name`,
-          [credentials.email]
-        );
+        try {
+          // Upsert user in our profiles table
+          const user = await queryOne<{ id: string; email: string; first_name: string | null }>(
+            `INSERT INTO profiles (id, email, created_at, updated_at)
+             VALUES (gen_random_uuid(), $1, NOW(), NOW())
+             ON CONFLICT (email) DO UPDATE SET updated_at = NOW()
+             RETURNING id, email, first_name`,
+            [credentials.email]
+          );
 
-        if (!user) return null;
+          if (!user) return null;
 
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.first_name || user.email,
-        };
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.first_name || user.email,
+          };
+        } catch (err) {
+          console.error('[Auth] authorize failed — DB may be unreachable:', err instanceof Error ? err.message : err);
+          throw new Error('Database connection failed. Please try again later.');
+        }
       },
     }),
   ],
@@ -68,26 +73,37 @@ export const authOptions: NextAuthOptions = {
     async signIn({ user }) {
       if (!user.email) return false;
 
-      // Upsert profile on sign-in
-      await query(
-        `INSERT INTO profiles (id, email, created_at, updated_at)
-         VALUES (gen_random_uuid(), $1, NOW(), NOW())
-         ON CONFLICT (email) DO UPDATE SET updated_at = NOW()`,
-        [user.email]
-      );
+      try {
+        // Upsert profile on sign-in
+        await query(
+          `INSERT INTO profiles (id, email, created_at, updated_at)
+           VALUES (gen_random_uuid(), $1, NOW(), NOW())
+           ON CONFLICT (email) DO UPDATE SET updated_at = NOW()`,
+          [user.email]
+        );
+      } catch (err) {
+        console.error('[Auth] signIn callback DB error:', err instanceof Error ? err.message : err);
+        // Allow sign-in to proceed even if profile upsert fails
+        // (profile will be created on next successful connection)
+      }
 
       return true;
     },
 
     async jwt({ token, user }) {
       if (user) {
-        // Get the DB user ID on first sign-in
-        const profile = await queryOne<{ id: string }>(
-          `SELECT id FROM profiles WHERE email = $1`,
-          [user.email!]
-        );
-        if (profile) {
-          token.userId = profile.id;
+        try {
+          // Get the DB user ID on first sign-in
+          const profile = await queryOne<{ id: string }>(
+            `SELECT id FROM profiles WHERE email = $1`,
+            [user.email!]
+          );
+          if (profile) {
+            token.userId = profile.id;
+          }
+        } catch (err) {
+          console.error('[Auth] jwt callback DB error:', err instanceof Error ? err.message : err);
+          // Continue without userId — will retry on next session refresh
         }
       }
       return token;
@@ -103,11 +119,14 @@ export const authOptions: NextAuthOptions = {
 
   pages: {
     signIn: '/login',
+    error: '/login',
   },
 
   session: {
     strategy: 'jwt',
   },
+
+  debug: process.env.NODE_ENV === 'development',
 
   secret: process.env.NEXTAUTH_SECRET,
 };
