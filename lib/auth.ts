@@ -74,12 +74,15 @@ export const authOptions: NextAuthOptions = {
       if (!user.email) return false;
 
       try {
-        // Upsert profile on sign-in
+        // Upsert profile on sign-in (captures name + avatar from OAuth providers)
         await query(
-          `INSERT INTO profiles (id, email, created_at, updated_at)
-           VALUES (gen_random_uuid(), $1, NOW(), NOW())
-           ON CONFLICT (email) DO UPDATE SET updated_at = NOW()`,
-          [user.email]
+          `INSERT INTO profiles (id, email, first_name, avatar_url, created_at, updated_at)
+           VALUES (gen_random_uuid(), $1, $2, $3, NOW(), NOW())
+           ON CONFLICT (email) DO UPDATE SET
+             first_name = COALESCE(NULLIF($2, ''), profiles.first_name),
+             avatar_url = COALESCE(NULLIF($3, ''), profiles.avatar_url),
+             updated_at = NOW()`,
+          [user.email, user.name || null, user.image || null]
         );
       } catch (err) {
         console.error('[Auth] signIn callback DB error:', err instanceof Error ? err.message : err);
