@@ -508,7 +508,7 @@ export default function Home() {
                 <ul className="space-y-3 mb-8">
                   {pricingFeatures.free.map((item) => (
                     <li key={item} className="flex items-start gap-3">
-                      <span className="gradient-text flex-shrink-0 mt-0.5">&check;</span>
+                      <span className="gradient-text flex-shrink-0 mt-0.5">✓</span>
                       <span className="font-body text-text-600 text-sm">{item}</span>
                     </li>
                   ))}
@@ -534,7 +534,7 @@ export default function Home() {
                 <ul className="space-y-3 mb-8">
                   {pricingFeatures.heritage.map((item) => (
                     <li key={item} className="flex items-start gap-3">
-                      <span className="gradient-text flex-shrink-0 mt-0.5">&check;</span>
+                      <span className="gradient-text flex-shrink-0 mt-0.5">✓</span>
                       <span className="font-body text-text-600 text-sm">{item}</span>
                     </li>
                   ))}
