@@ -22,6 +22,15 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const MIGRATIONS_DIR = path.join(__dirname, '..', 'supabase', 'migrations');
 
+// Skip migrations if database credentials are not configured
+const requiredEnvVars = ['DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASSWORD'];
+const missingVars = requiredEnvVars.filter(v => !process.env[v]);
+if (missingVars.length > 0) {
+  console.log(`\nSkipping migrations — missing env vars: ${missingVars.join(', ')}`);
+  console.log('Set DB_HOST, DB_NAME, DB_USER, and DB_PASSWORD to enable migrations.\n');
+  process.exit(0);
+}
+
 const pool = new pg.Pool({
   host: process.env.DB_HOST,
   port: parseInt(process.env.DB_PORT || '5432'),

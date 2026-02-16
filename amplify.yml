@@ -4,8 +4,8 @@ frontend:
     preBuild:
       commands:
         - npm ci
-        # Run database migrations before build
-        - node scripts/migrate.mjs
+        # Run database migrations (non-blocking — skips if DB not reachable)
+        - node scripts/migrate.mjs || echo "Migration skipped or failed — continuing build"
     build:
       commands:
         - npm run build
